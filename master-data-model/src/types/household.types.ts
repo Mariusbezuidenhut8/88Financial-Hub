@@ -1,51 +1,100 @@
-import { Gender } from "./common.types";
+import { ID, ISODate, DependantRelationship } from "./common.types";
 
-export interface SpouseOrPartner {
-  firstName: string;
-  lastName: string;
-  idNumber?: string;
-  dateOfBirth?: string;
-  age?: number;
-  gender?: Gender;
-  employmentStatus?: string;
-  monthlyIncome?: number;
-  isFinanciallyDependent: boolean;
-}
+/**
+ * HouseholdMember — unified interface for spouse, children, parents, and
+ * any other financially linked person.
+ *
+ * Used for:
+ * - spouse/partner (relationship = "spouse" | "partner")
+ * - children (relationship = "child")
+ * - parents supported (relationship = "parent")
+ * - extended dependants
+ */
+export interface HouseholdMember {
+  /** REQUIRED */
+  memberId: ID;
 
-export interface Child {
-  id: string;
-  firstName: string;
+  /** REQUIRED */
+  relationship: DependantRelationship;
+
+  /** OPTIONAL */
+  firstName?: string;
+
+  /** OPTIONAL */
   lastName?: string;
-  dateOfBirth?: string;
-  age: number;
-  gender?: Gender;
-  isDependent: boolean;
-  isFullTimeStudent?: boolean;
-  hasDisability?: boolean;
-  requiresSpecialCare?: boolean;
-  estimatedAnnualEducationCost?: number;
-}
 
-export interface DependantAdult {
-  id: string;
-  relationship: "parent" | "parent_in_law" | "sibling" | "other";
-  firstName: string;
-  lastName?: string;
+  /** OPTIONAL */
   age?: number;
-  isFinanciallySupported: boolean;
+
+  /** OPTIONAL */
+  dateOfBirth?: ISODate;
+
+  /** OPTIONAL */
+  gender?: "male" | "female" | "other";
+
+  /** REQUIRED — drives protection and income replacement calculations */
+  financiallyDependent: boolean;
+
+  /** OPTIONAL */
+  livesWithClient?: boolean;
+
+  /** OPTIONAL — monthly amount client contributes to this person */
   monthlySupport?: number;
+
+  /** OPTIONAL */
   hasDisability?: boolean;
+
+  /** OPTIONAL — for children */
+  isFullTimeStudent?: boolean;
+
+  /** OPTIONAL — for children: estimated annual cost */
+  educationCostAnnual?: number;
+
+  /** OPTIONAL */
+  notes?: string;
 }
 
-export interface Household {
+/**
+ * HouseholdProfile — the client's family and dependant structure.
+ *
+ * USED BY: Financial Health Score, Protection Planner, Estate Architect,
+ *          Funeral Cover Studio, Retirement Architect
+ */
+export interface HouseholdProfile {
+  /** REQUIRED — drives all downstream dependant calculations */
   hasSpouseOrPartner: boolean;
-  spouseOrPartner?: SpouseOrPartner;
+
+  /**
+   * OPTIONAL — present if hasSpouseOrPartner = true.
+   * Uses HouseholdMember with relationship = "spouse" | "partner".
+   */
+  spouseOrPartner?: HouseholdMember;
+
+  /**
+   * REQUIRED — flat list of all household members (children, parents,
+   * extended family). Does NOT include spouseOrPartner (that's separate).
+   * Empty array is valid — means no additional dependants.
+   */
+  dependants: HouseholdMember[];
+
+  /** REQUIRED — count of children (living with or dependent on client) */
   numberOfChildren: number;
-  children: Child[];
-  dependantAdults: DependantAdult[];
+
+  /** REQUIRED — count of dependent adults other than spouse */
+  numberOfDependentAdults: number;
+
+  /** REQUIRED — used in protection and funeral cover calculations */
   parentsSupported: number;
+
+  /** REQUIRED */
   extendedFamilySupported: number;
-  hasGuardianshipNeeds: boolean;
+
+  /** OPTIONAL — triggers guardian planning in estate tool */
+  hasMinorChildren?: boolean;
+
+  /** OPTIONAL — for estate planning */
+  guardianshipNeeds?: boolean;
+
+  /** OPTIONAL — name of nominated guardian */
   nominatedGuardian?: string;
-  householdNotes?: string;
 }

@@ -1,60 +1,71 @@
-import { CurrencyZAR } from "./common.types";
+import { ID, ISODate, PolicyType, Currency } from "./common.types";
 
-export type PolicyStatus = "active" | "lapsed" | "surrendered" | "paid_up" | "claim_in_progress";
+/**
+ * ProtectionPolicyRecord — a single insurance policy or medical aid record.
+ * All policies are stored as a flat array on ClientProfile.
+ *
+ * USED BY: Financial Health Score, Protection Planner, Funeral Cover Studio,
+ *          Estate Architect (life cover for liquidity), ROA Builder
+ */
+export interface ProtectionPolicyRecord {
+  /** REQUIRED */
+  policyId: ID;
 
-export type ProtectionPolicyType =
-  | "life_cover"
-  | "funeral_cover"
-  | "disability_lump_sum"
-  | "disability_income_protection"
-  | "severe_illness"
-  | "income_protection"
-  | "group_life"
-  | "group_disability"
-  | "credit_life"
-  | "other";
+  /** REQUIRED */
+  policyType: PolicyType;
 
-export interface ProtectionPolicy {
-  id: string;
-  policyType: ProtectionPolicyType;
+  /** REQUIRED */
   provider: string;
+
+  /** OPTIONAL — policy reference number */
   policyNumber?: string;
-  status: PolicyStatus;
-  owner: "self" | "spouse" | "employer";
-  livesCovered: ("self" | "spouse" | "child" | "parent" | "extended")[];
-  coverAmount: CurrencyZAR;
-  monthlyPremium: CurrencyZAR;
-  policyStartDate?: string;
-  reviewDate?: string;
-  beneficiaries?: { name: string; relationship: string; percentage: number }[];
+
+  /** REQUIRED */
+  owner: "self" | "spouse" | "employer" | "joint" | "other";
+
+  /**
+   * REQUIRED — list of who is covered.
+   * Use identifiers like "self", "spouse", "child_1", "parent_1"
+   * or the actual memberId from household.dependants.
+   */
+  livesCovered: string[];
+
+  /** OPTIONAL — total sum assured or cover amount */
+  coverAmount?: Currency;
+
+  /** OPTIONAL */
+  monthlyPremium?: Currency;
+
+  /** OPTIONAL */
+  policyStartDate?: ISODate;
+
+  /** OPTIONAL */
+  reviewDate?: ISODate;
+
+  /** OPTIONAL */
+  beneficiaryNominated?: boolean;
+
+  /** REQUIRED */
+  status: "active" | "lapsed" | "pending" | "paid_up" | "cancelled" | "unknown";
+
+  /** OPTIONAL */
   notes?: string;
 }
 
-export interface MedicalAidDetails {
+/**
+ * MedicalAidRecord — kept separate from ProtectionPolicyRecord because
+ * medical aid has distinct regulatory and planning logic.
+ *
+ * USED BY: Financial Health Score, Protection Planner
+ */
+export interface MedicalAidRecord {
   hasMedicalAid: boolean;
   provider?: string;
   planName?: string;
   membershipNumber?: string;
-  monthlyPremium?: CurrencyZAR;
+  monthlyPremium?: Currency;
   livesCovered?: number;
   hasGapCover?: boolean;
   gapCoverProvider?: string;
-  gapCoverPremium?: CurrencyZAR;
-}
-
-export interface Protection {
-  policies: ProtectionPolicy[];
-  medicalAid: MedicalAidDetails;
-
-  // Computed by Protection Planner (stored here after analysis)
-  totalLifeCover?: CurrencyZAR;
-  totalFuneralCover?: CurrencyZAR;
-  totalDisabilityCover?: CurrencyZAR;
-  totalIncomeProtection?: CurrencyZAR;
-
-  // Needs analysis gaps (set by Protection Planner tool)
-  lifeCoverShortfall?: CurrencyZAR;
-  funeralCoverShortfall?: CurrencyZAR;
-  disabilityCoverShortfall?: CurrencyZAR;
-  incomeProtectionShortfall?: CurrencyZAR;
+  gapCoverMonthlyPremium?: Currency;
 }

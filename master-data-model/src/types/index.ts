@@ -1,7 +1,7 @@
-// Common primitives
+// ── Primitives and shared types ───────────────────────────────────────────
 export * from "./common.types";
 
-// Profile sections
+// ── Profile sections ──────────────────────────────────────────────────────
 export * from "./identity.types";
 export * from "./household.types";
 export * from "./employment.types";
@@ -12,16 +12,16 @@ export * from "./retirement.types";
 export * from "./estate.types";
 export * from "./goals.types";
 
-// Root profile type
+// ── Root profile type ─────────────────────────────────────────────────────
 export * from "./client-profile.types";
 
-// System data
+// ── System data ───────────────────────────────────────────────────────────
 export * from "./tool-outputs.types";
 export * from "./advice-case.types";
 export * from "./compliance.types";
 
-// Platform record (top-level container)
+// ── Top-level container ───────────────────────────────────────────────────
 export * from "./platform-record.types";
 
-// Tool field map (documentation + type reference)
+// ── Tool field map ────────────────────────────────────────────────────────
 export * from "./tool-field-map";

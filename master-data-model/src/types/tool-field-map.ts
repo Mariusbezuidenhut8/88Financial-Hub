@@ -1,318 +1,193 @@
 /**
- * Tool Field Map — documents exactly which ClientProfile fields each tool reads.
+ * TOOL_FIELD_MAP — authoritative reference for which ClientProfile fields
+ * each tool reads.
  *
- * This is the authoritative reference for:
- * - Frontend developers: what to ask in onboarding to unblock each tool
- * - Backend developers: what to prefill when a tool opens
- * - Product: what is the minimum viable profile for each feature
+ * Use this for:
+ * - Onboarding: what minimum data unlocks each tool
+ * - Frontend: what to prefill when a tool opens
+ * - Backend: validation before running an engine
+ * - Product: understanding dependencies between profile and features
  *
- * Format: each tool lists the profile fields it READS from ClientProfile.
- * Fields marked (REQUIRED) must be populated for the tool to function.
- * Fields marked (OPTIONAL) improve output quality but are not blocking.
+ * Format: dot-notation paths into ClientProfile.
+ * Paths marked REQUIRED must be non-null for the tool to run.
+ * Paths marked OPTIONAL improve output quality.
+ * Paths marked COMPUTED are derived — do not collect from user.
  */
-
 export const TOOL_FIELD_MAP = {
 
-  /**
-   * Financial Health Score
-   * Gives a 0–100 score across 7 categories.
-   * Broadest coverage — touches almost every profile section.
-   */
   financialHealthScore: {
-    reads: {
-      identity: [
-        "age",                           // REQUIRED — risk benchmarks are age-adjusted
-      ],
-      household: [
-        "numberOfChildren",              // REQUIRED — dependant load
-        "parentsSupported",              // REQUIRED — dependant load
-        "hasSpouseOrPartner",            // OPTIONAL — dual income consideration
-      ],
-      employment: [
-        "employmentStatus",              // REQUIRED — income stability flag
-        "isSelfEmployed",                // REQUIRED — volatility flag
-      ],
-      cashFlow: [
-        "monthlyNetIncome",              // REQUIRED
-        "monthlyEssentialExpenses",      // REQUIRED
-        "monthlyDebtRepayments",         // REQUIRED
-        "monthlySavingsContributions",   // REQUIRED
-        "monthlyRetirementContributions",// REQUIRED
-        "hasEmergencyFund",              // REQUIRED
-        "emergencyFundAmount",           // OPTIONAL
-        "debtToIncomeRatio",             // COMPUTED — derived field
-        "savingsRate",                   // COMPUTED — derived field
-      ],
-      assets: [
-        "totalLiquidAssets",             // COMPUTED — from assets array
-        "totalRetirementAssets",         // COMPUTED — from assets array
-      ],
-      protection: [
-        "totalLifeCover",                // COMPUTED — from policies array
-        "totalFuneralCover",             // COMPUTED — from policies array
-        "medicalAid.hasMedicalAid",      // REQUIRED — healthcare coverage flag
-      ],
-      retirement: [
-        "retirementReadinessStatus",     // COMPUTED — from Retirement Architect
-        "totalCurrentRetirementSavings", // REQUIRED
-        "targetRetirementAge",           // REQUIRED
-      ],
-      estate: [
-        "hasWill",                       // REQUIRED
-        "beneficiariesReviewed",         // OPTIONAL
-      ],
-      goals: [
-        "goals",                         // OPTIONAL — goal completion influences score
-      ],
-    },
-    minimumRequiredFields: [
+    description: "Scores the client's financial health across 5 categories (0–100)",
+    reads: [
+      { path: "identity.age",                              required: true  },
+      { path: "household.numberOfChildren",                required: true  },
+      { path: "household.parentsSupported",                required: true  },
+      { path: "household.hasSpouseOrPartner",              required: false },
+      { path: "employment.employmentStatus",               required: true  },
+      { path: "employment.monthlyNetIncome",               required: true  },
+      { path: "cashFlow.monthlyEssentialExpenses",         required: true  },
+      { path: "cashFlow.monthlyDebtRepayments",            required: true  },
+      { path: "cashFlow.monthlySavings",                   required: true  },
+      { path: "cashFlow.monthlyRetirementContributions",   required: true  },
+      { path: "cashFlow.hasEmergencyFund",                 required: true  },
+      { path: "cashFlow.emergencyFundAmount",              required: false },
+      { path: "cashFlow.debtToIncomeRatio",                required: false, note: "COMPUTED" },
+      { path: "cashFlow.savingsRate",                      required: false, note: "COMPUTED" },
+      { path: "assets[]",                                  required: false, note: "liquid assets total" },
+      { path: "protection[]",                              required: true,  note: "at least declare none or some" },
+      { path: "medicalAid.hasMedicalAid",                  required: false },
+      { path: "retirement.currentRetirementSavings",       required: true  },
+      { path: "retirement.targetRetirementAge",            required: true  },
+      { path: "estate.hasWill",                            required: true  },
+      { path: "goals[]",                                   required: false },
+    ],
+    minimumToRun: [
       "identity.age",
-      "cashFlow.monthlyNetIncome",
+      "employment.monthlyNetIncome",
       "cashFlow.monthlyEssentialExpenses",
       "cashFlow.monthlyDebtRepayments",
       "cashFlow.hasEmergencyFund",
-      "retirement.totalCurrentRetirementSavings",
+      "retirement.currentRetirementSavings",
       "retirement.targetRetirementAge",
       "estate.hasWill",
-      "protection (at least one policy or explicit none)",
     ],
   },
 
-  /**
-   * Retirement Architect
-   * Projects retirement fund, gap analysis, and monthly contribution needed.
-   */
   retirementArchitect: {
-    reads: {
-      identity: [
-        "dateOfBirth",                   // REQUIRED — years to retirement calculation
-        "age",                           // REQUIRED
-      ],
-      household: [
-        "spouseOrPartner.age",           // OPTIONAL — joint planning
-        "spouseOrPartner.monthlyIncome", // OPTIONAL — household income picture
-      ],
-      employment: [
-        "employmentStatus",              // REQUIRED — pensionable employment flag
-        "hasGroupRetirementBenefit",     // OPTIONAL — existing scheme contribution
-      ],
-      cashFlow: [
-        "monthlyNetIncome",              // REQUIRED — affordability of contributions
-        "monthlyRetirementContributions",// REQUIRED — current contribution rate
-        "monthlyDisposableIncome",       // COMPUTED — room to increase contributions
-      ],
-      assets: [
-        "retirementAssets",              // REQUIRED — existing fund values and types
-      ],
-      retirement: [
-        "targetRetirementAge",           // REQUIRED
-        "desiredMonthlyRetirementIncome",// REQUIRED
-        "riskTolerance",                 // REQUIRED — drives projected growth rate
-        "inflationAssumption",           // OPTIONAL — defaults to 6% if absent
-        "expectedReturnRate",            // OPTIONAL — adviser can override
-        "expectedRetirementDuration",    // OPTIONAL — defaults to age 100 minus retirement age
-      ],
-    },
-    minimumRequiredFields: [
+    description: "Projects retirement fund, gap, and required monthly contribution",
+    reads: [
+      { path: "identity.dateOfBirth",                      required: true  },
+      { path: "identity.age",                              required: true  },
+      { path: "household.spouseOrPartner",                 required: false, note: "for joint planning" },
+      { path: "employment.employmentStatus",               required: true  },
+      { path: "employment.monthlyNetIncome",               required: true  },
+      { path: "employment.hasGroupRetirementBenefit",      required: false },
+      { path: "cashFlow.monthlyRetirementContributions",   required: true  },
+      { path: "cashFlow.disposableIncomeEstimate",         required: false, note: "room to increase contributions" },
+      { path: "assets[]",                                  required: true,  note: "filter by isRetirementAsset" },
+      { path: "retirement.targetRetirementAge",            required: true  },
+      { path: "retirement.desiredRetirementIncomeMonthly", required: true  },
+      { path: "retirement.currentRetirementSavings",       required: true  },
+      { path: "retirement.riskTolerance",                  required: true  },
+      { path: "retirement.retirementVehicles[]",           required: false },
+      { path: "retirement.inflationAssumption",            required: false, note: "defaults to 6% if absent" },
+      { path: "retirement.expectedReturnRate",             required: false, note: "adviser override" },
+    ],
+    minimumToRun: [
       "identity.age",
-      "cashFlow.monthlyNetIncome",
+      "employment.monthlyNetIncome",
       "cashFlow.monthlyRetirementContributions",
-      "assets.retirementAssets (can be empty array — zero balance is valid)",
       "retirement.targetRetirementAge",
-      "retirement.desiredMonthlyRetirementIncome",
+      "retirement.desiredRetirementIncomeMonthly",
+      "retirement.currentRetirementSavings",
       "retirement.riskTolerance",
     ],
   },
 
-  /**
-   * Protection Planner
-   * Calculates life, disability, income protection, and funeral cover needs.
-   */
   protectionPlanner: {
-    reads: {
-      identity: [
-        "age",                           // REQUIRED — premium estimation, mortality risk
-        "gender",                        // REQUIRED — premium estimation
-        "maritalStatus",                 // REQUIRED — spouse cover need
-      ],
-      household: [
-        "hasSpouseOrPartner",            // REQUIRED — spouse cover need
-        "numberOfChildren",              // REQUIRED — child dependant load
-        "children",                      // OPTIONAL — individual child ages for pricing
-        "dependantAdults",               // OPTIONAL — additional dependant load
-        "parentsSupported",              // REQUIRED — funeral/income protection load
-      ],
-      employment: [
-        "employmentStatus",              // REQUIRED — income protection eligibility
-        "isSelfEmployed",                // REQUIRED — no group cover assumption
-        "hasGroupRiskBenefit",           // REQUIRED — reduces shortfall calculation
-      ],
-      cashFlow: [
-        "monthlyNetIncome",              // REQUIRED — income to protect
-        "monthlyEssentialExpenses",      // REQUIRED — minimum income replacement target
-        "monthlyDebtRepayments",         // REQUIRED — debt-linked life cover need
-      ],
-      liabilities: [
-        "outstandingBalance",            // REQUIRED — life cover to clear debt on death
-        "type",                          // REQUIRED — home loan, vehicle, personal loan
-      ],
-      protection: [
-        "policies",                      // REQUIRED — existing cover to offset shortfall
-        "medicalAid",                    // OPTIONAL — context for premium affordability
-      ],
-    },
-    minimumRequiredFields: [
+    description: "Calculates life, disability, income protection, and funeral cover needs",
+    reads: [
+      { path: "identity.age",                              required: true  },
+      { path: "identity.gender",                           required: true  },
+      { path: "identity.maritalStatus",                    required: true  },
+      { path: "household.hasSpouseOrPartner",              required: true  },
+      { path: "household.numberOfChildren",                required: true  },
+      { path: "household.dependants[]",                    required: false },
+      { path: "household.parentsSupported",                required: true  },
+      { path: "employment.employmentStatus",               required: true  },
+      { path: "employment.monthlyNetIncome",               required: true  },
+      { path: "employment.hasGroupRiskBenefit",            required: false },
+      { path: "cashFlow.monthlyEssentialExpenses",         required: true  },
+      { path: "cashFlow.monthlyDebtRepayments",            required: true  },
+      { path: "liabilities[]",                             required: true,  note: "for debt-linked life cover" },
+      { path: "protection[]",                              required: true,  note: "existing cover to offset shortfall" },
+    ],
+    minimumToRun: [
       "identity.age",
       "identity.gender",
+      "identity.maritalStatus",
       "household.numberOfChildren",
       "household.parentsSupported",
-      "cashFlow.monthlyNetIncome",
+      "employment.monthlyNetIncome",
+      "cashFlow.monthlyEssentialExpenses",
       "cashFlow.monthlyDebtRepayments",
-      "liabilities (can be empty array)",
-      "protection.policies (can be empty array — no cover is valid input)",
     ],
   },
 
-  /**
-   * Estate Architect
-   * Calculates estate duty exposure, liquidity shortfall, and planning gaps.
-   */
-  estateArchitect: {
-    reads: {
-      identity: [
-        "age",                           // REQUIRED — urgency of planning
-        "maritalStatus",                 // REQUIRED — affects estate duty spouse rebate
-        "idNumber",                      // REQUIRED — legal document generation
-      ],
-      household: [
-        "hasSpouseOrPartner",            // REQUIRED — Section 4(q) abatement eligibility
-        "spouseOrPartner",               // OPTIONAL — spouse details for estate calc
-        "children",                      // OPTIONAL — minor children trigger trust needs
-        "hasGuardianshipNeeds",          // REQUIRED
-        "nominatedGuardian",             // OPTIONAL
-      ],
-      assets: [
-        "properties",                    // REQUIRED — largest estate asset class
-        "investments",                   // REQUIRED
-        "retirementAssets",              // REQUIRED — note: exempt from estate duty
-        "businessAssets",               // OPTIONAL — triggers succession planning
-        "cashAndSavings",               // REQUIRED
-        "vehicles",                      // OPTIONAL
-        "totalNetWorth",                 // COMPUTED
-      ],
-      liabilities: [
-        "outstandingBalance",            // REQUIRED — reduces dutiable estate
-      ],
-      protection: [
-        "policies",                      // REQUIRED — life cover available for liquidity
-        "totalLifeCover",               // COMPUTED
-      ],
-      estate: [
-        "hasWill",                       // REQUIRED
-        "willLastUpdated",               // OPTIONAL — staleness flag
-        "executorAppointed",             // REQUIRED
-        "hasTrust",                      // OPTIONAL
-        "estimatedEstateDuty",           // COMPUTED by this tool, stored back here
-        "estimatedEstateLiquidityShortfall", // COMPUTED
-        "hasBusinessInterest",           // OPTIONAL
-        "hasSuccessionPlan",             // OPTIONAL
-      ],
-    },
-    minimumRequiredFields: [
-      "identity.maritalStatus",
-      "assets.properties (can be empty array)",
-      "assets.investments (can be empty array)",
-      "assets.cashAndSavings (can be empty array)",
-      "liabilities (can be empty array)",
-      "protection.policies (can be empty array)",
-      "estate.hasWill",
-      "estate.executorAppointed",
-    ],
-  },
-
-  /**
-   * Funeral Cover Studio
-   * Recommends appropriate funeral cover and processes the application.
-   */
   funeralCoverStudio: {
-    reads: {
-      identity: [
-        "firstName",                     // REQUIRED — policy document
-        "lastName",                      // REQUIRED
-        "idNumber",                      // REQUIRED — application
-        "dateOfBirth",                   // REQUIRED
-        "age",                           // REQUIRED — eligibility check
-        "gender",                        // REQUIRED
-      ],
-      contact: [
-        "mobileNumber",                  // REQUIRED
-        "emailAddress",                  // REQUIRED
-        "physicalAddress",               // REQUIRED — policy address
-      ],
-      household: [
-        "hasSpouseOrPartner",            // REQUIRED — spouse cover option
-        "spouseOrPartner",               // OPTIONAL — spouse details for cover
-        "children",                      // OPTIONAL — child cover configuration
-        "dependantAdults",               // OPTIONAL — extended family cover
-        "parentsSupported",              // OPTIONAL — parent cover option
-      ],
-      cashFlow: [
-        "monthlyNetIncome",              // REQUIRED — affordability band
-      ],
-      protection: [
-        "policies",                      // REQUIRED — existing funeral/life cover
-        "totalFuneralCover",             // COMPUTED — gap analysis
-      ],
-    },
-    minimumRequiredFields: [
+    description: "Recommends funeral cover and processes the application",
+    reads: [
+      { path: "identity.firstName",                        required: true  },
+      { path: "identity.lastName",                         required: true  },
+      { path: "identity.idNumber",                         required: true  },
+      { path: "identity.dateOfBirth",                      required: true  },
+      { path: "identity.age",                              required: true  },
+      { path: "identity.gender",                           required: true  },
+      { path: "contact.mobileNumber",                      required: true  },
+      { path: "contact.emailAddress",                      required: false },
+      { path: "contact.physicalAddress",                   required: true  },
+      { path: "household.hasSpouseOrPartner",              required: true  },
+      { path: "household.spouseOrPartner",                 required: false },
+      { path: "household.dependants[]",                    required: false, note: "children + extended family for cover" },
+      { path: "household.parentsSupported",                required: false },
+      { path: "employment.monthlyNetIncome",               required: true,  note: "affordability band" },
+      { path: "protection[]",                              required: true,  note: "existing funeral/life cover" },
+    ],
+    minimumToRun: [
       "identity.firstName",
       "identity.lastName",
       "identity.idNumber",
       "identity.age",
       "identity.gender",
       "contact.mobileNumber",
-      "cashFlow.monthlyNetIncome",
+      "employment.monthlyNetIncome",
     ],
   },
 
-  /**
-   * ROA Builder
-   * Generates a FAIS-compliant Record of Advice document.
-   */
+  estateArchitect: {
+    description: "Calculates estate duty, liquidity shortfall, and planning gaps",
+    reads: [
+      { path: "identity.age",                              required: true  },
+      { path: "identity.maritalStatus",                    required: true,  note: "Section 4(q) spouse abatement" },
+      { path: "identity.idNumber",                         required: true,  note: "legal document generation" },
+      { path: "household.hasSpouseOrPartner",              required: true  },
+      { path: "household.spouseOrPartner",                 required: false },
+      { path: "household.dependants[]",                    required: false, note: "minor children trigger trust need" },
+      { path: "household.hasMinorChildren",                required: true  },
+      { path: "assets[]",                                  required: true  },
+      { path: "liabilities[]",                             required: true  },
+      { path: "protection[]",                              required: true,  note: "life cover available for liquidity" },
+      { path: "retirement.retirementVehicles[]",           required: false, note: "exempt from estate duty" },
+      { path: "estate",                                    required: true  },
+    ],
+    minimumToRun: [
+      "identity.maritalStatus",
+      "household.hasMinorChildren",
+      "estate.hasWill",
+    ],
+  },
+
   roaBuilder: {
-    reads: {
-      identity: [
-        "firstName",                     // REQUIRED — document
-        "lastName",                      // REQUIRED
-        "idNumber",                      // REQUIRED
-      ],
-      contact: [
-        "mobileNumber",                  // REQUIRED
-        "emailAddress",                  // REQUIRED
-        "physicalAddress",               // REQUIRED
-      ],
-      // Plus the linked AdviceCase (inputs + outputs snapshot)
-      // Plus the linked ToolOutput for the relevant module
-      // Plus ConsentRecords and DisclosureRecords
-      adviceCase: [
-        "caseType",                      // REQUIRED
-        "profileSnapshot",               // REQUIRED — inputs at time of advice
-        "outputSnapshot",                // REQUIRED — recommendations at time of advice
-        "recommendationSummary",         // REQUIRED
-        "adviserNotes",                  // OPTIONAL
-      ],
-      compliance: [
-        "consentRecords",                // REQUIRED — proof of POPI consent
-        "disclosureRecords",             // REQUIRED — proof of disclosure
-        "advisorNotes",                  // OPTIONAL
-      ],
-    },
-    minimumRequiredFields: [
+    description: "Generates a FAIS-compliant Record of Advice document",
+    reads: [
+      { path: "identity.firstName",                        required: true  },
+      { path: "identity.lastName",                         required: true  },
+      { path: "identity.idNumber",                         required: true  },
+      { path: "contact (full)",                            required: true  },
+      { path: "adviceCases[].caseType",                   required: true  },
+      { path: "adviceCases[].profileSnapshot",            required: true  },
+      { path: "adviceCases[].outputSnapshot",             required: true  },
+      { path: "adviceCases[].recommendationSummary",      required: true  },
+      { path: "adviceCases[].notes",                      required: false },
+      { path: "consentRecords[]",                         required: true  },
+      { path: "disclosureRecords[]",                      required: true  },
+    ],
+    minimumToRun: [
       "identity.firstName",
       "identity.lastName",
       "identity.idNumber",
-      "contact (full)",
+      "contact.physicalAddress",
       "At least one completed AdviceCase with profileSnapshot and outputSnapshot",
+      "At least one ConsentRecord (popi_act or data_processing)",
       "At least one DisclosureRecord",
     ],
   },

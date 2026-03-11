@@ -1,67 +1,133 @@
+import { ID, ISODateTime, DocumentType, AuditEventType } from "./common.types";
+
+/**
+ * ConsentRecord — POPI Act and data processing consent.
+ * Stored at PlatformRecord.consentRecords.
+ */
 export interface ConsentRecord {
-  id: string;
+  /** REQUIRED */
+  id: ID;
+
+  /** REQUIRED */
   consentType:
+    | "popi_act"
     | "data_processing"
     | "marketing"
-    | "popi_act"
     | "product_disclosure"
     | "needs_analysis"
     | "advice_given";
+
+  /** REQUIRED — consent form version */
   version: string;
-  acceptedAt: string;
+
+  /** REQUIRED */
+  acceptedAt: ISODateTime;
+
+  /** REQUIRED */
   channel: "web" | "app" | "paper" | "advisor_captured";
+
+  /** OPTIONAL */
   ipAddress?: string;
+
+  /** OPTIONAL — base64 data URL of digital signature */
   signatureDataUrl?: string;
 }
 
+/**
+ * DisclosureRecord — FAIS disclosure acknowledgement.
+ * Stored at PlatformRecord.disclosureRecords.
+ */
 export interface DisclosureRecord {
-  id: string;
+  /** REQUIRED */
+  id: ID;
+
+  /** REQUIRED */
   disclosureType: string;
+
+  /** REQUIRED */
   version: string;
-  shownAt: string;
-  acceptedAt?: string;
-  documentId?: string;
+
+  /** REQUIRED */
+  shownAt: ISODateTime;
+
+  /** OPTIONAL — null if shown but not yet accepted */
+  acceptedAt?: ISODateTime;
+
+  /** OPTIONAL — links to DocumentRecord */
+  documentId?: ID;
 }
 
-export interface AuditEvent {
-  id: string;
-  eventType:
-    | "profile_created"
-    | "profile_updated"
-    | "tool_accessed"
-    | "advice_case_created"
-    | "document_generated"
-    | "consent_given"
-    | "disclosure_viewed"
-    | "signature_captured";
-  description: string;
-  performedBy: string;     // adviserId or "self"
-  performedAt: string;
+/**
+ * DocumentRecord — metadata for a generated document.
+ * Actual file stored in object storage (S3, Firebase Storage, etc.).
+ * Stored at PlatformRecord.documents.
+ */
+export interface DocumentRecord {
+  /** REQUIRED */
+  documentId: ID;
+
+  /** REQUIRED */
+  clientId: ID;
+
+  /** OPTIONAL — links to the advice case this document belongs to */
+  caseId?: ID;
+
+  /** REQUIRED */
+  documentType: DocumentType;
+
+  /** REQUIRED */
+  title: string;
+
+  /** REQUIRED */
+  version: string;
+
+  /** REQUIRED */
+  createdAt: ISODateTime;
+
+  /** OPTIONAL — adviserId or "system" */
+  createdBy?: ID;
+
+  /** OPTIONAL — object storage URL or path */
+  storageUrl?: string;
+
+  /** OPTIONAL — signed at by client */
+  signedAt?: ISODateTime;
+
+  /** OPTIONAL — additional metadata */
   metadata?: Record<string, unknown>;
 }
 
-export interface DocumentRecord {
-  id: string;
-  documentType:
-    | "record_of_advice"
-    | "needs_analysis"
-    | "product_schedule"
-    | "disclosure"
-    | "application_form"
-    | "identity_document"
-    | "other";
-  linkedCaseId?: string;
-  fileName: string;
-  fileUrl?: string;         // Storage reference
-  generatedAt: string;
-  signedAt?: string;
-  version: number;
-}
+/**
+ * AuditEvent — a single immutable event in the compliance trail.
+ * Stored at PlatformRecord.auditEvents.
+ *
+ * RULE: Never edit or delete audit events. Append only.
+ */
+export interface AuditEvent {
+  /** REQUIRED */
+  auditEventId: ID;
 
-export interface ComplianceRecord {
-  consentRecords: ConsentRecord[];
-  disclosureRecords: DisclosureRecord[];
-  auditEvents: AuditEvent[];
-  documents: DocumentRecord[];
-  advisorNotes: { id: string; note: string; createdAt: string; adviserId: string }[];
+  /** REQUIRED */
+  clientId: ID;
+
+  /** OPTIONAL */
+  caseId?: ID;
+
+  /** REQUIRED */
+  eventType: AuditEventType;
+
+  /** REQUIRED */
+  eventTimestamp: ISODateTime;
+
+  /** REQUIRED */
+  actorType: "client" | "advisor" | "system" | "admin";
+
+  /** OPTIONAL */
+  actorId?: ID;
+
+  /** REQUIRED — human-readable description */
+  summary: string;
+
+  /** OPTIONAL — structured event payload */
+  details?: Record<string, unknown>;
 }

@@ -1,39 +1,42 @@
-import { CurrencyZAR } from "./common.types";
+import { ID, ISODate, Currency, GoalCategory } from "./common.types";
 
-export type GoalCategory =
-  | "retirement"
-  | "education"
-  | "emergency_fund"
-  | "home_purchase"
-  | "debt_freedom"
-  | "funeral_protection"
-  | "estate_readiness"
-  | "travel"
-  | "business"
-  | "wealth_building"
-  | "other";
+/**
+ * GoalRecord — a single financial goal.
+ * Stored as a flat array on ClientProfile.
+ *
+ * USED BY: Financial Health Score, Investment Analysis, dashboard
+ */
+export interface GoalRecord {
+  /** REQUIRED */
+  goalId: ID;
 
-export type GoalHorizon = "short_term" | "medium_term" | "long_term";
-// short = < 3 years, medium = 3–10 years, long = 10+ years
-
-export type GoalStatus = "not_started" | "in_progress" | "on_track" | "behind" | "achieved";
-
-export interface Goal {
-  id: string;
+  /** REQUIRED */
   category: GoalCategory;
-  horizon: GoalHorizon;
-  description: string;
-  targetAmount?: CurrencyZAR;
-  targetDate?: string;
-  currentProgress?: CurrencyZAR;
-  monthlyContribution?: CurrencyZAR;
-  priority: "high" | "medium" | "low";
-  status: GoalStatus;
-  linkedToolOutputId?: string;   // Links to tool output if analysed
-  notes?: string;
-}
 
-export interface Goals {
-  goals: Goal[];
-  topPriority?: string;   // goalId of highest priority
+  /** REQUIRED — human-readable title */
+  title: string;
+
+  /** OPTIONAL */
+  description?: string;
+
+  /** OPTIONAL */
+  targetAmount?: Currency;
+
+  /** OPTIONAL — YYYY-MM-DD */
+  targetDate?: ISODate;
+
+  /** REQUIRED — 1 (highest) to 5 (lowest) */
+  priority: 1 | 2 | 3 | 4 | 5;
+
+  /** OPTIONAL */
+  status?: "not_started" | "in_progress" | "on_track" | "at_risk" | "achieved";
+
+  /** OPTIONAL — current progress towards target */
+  currentProgress?: Currency;
+
+  /** OPTIONAL — monthly amount being saved towards this goal */
+  monthlyContribution?: Currency;
+
+  /** OPTIONAL — links to a toolOutput if this goal has been analysed */
+  linkedToolOutputKey?: string;
 }

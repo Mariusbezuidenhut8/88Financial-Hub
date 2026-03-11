@@ -1,89 +1,56 @@
-import { CurrencyZAR } from "./common.types";
+import { ID, AssetType, Currency } from "./common.types";
 
-export type AssetOwner = "self" | "spouse" | "joint" | "trust" | "business";
+/**
+ * AssetRecord — a single asset of any type.
+ * All assets are stored as a flat array on ClientProfile.
+ *
+ * Benefits of flat array vs nested-by-category:
+ * - simpler queries (filter by assetType)
+ * - easier to add new asset types
+ * - same shape for all rendering components
+ *
+ * USED BY: Financial Health Score, Retirement Architect, Estate Architect
+ */
+export interface AssetRecord {
+  /** REQUIRED */
+  assetId: ID;
 
-export type AssetLiquidity = "liquid" | "semi_liquid" | "illiquid";
+  /** REQUIRED */
+  assetType: AssetType;
 
-export interface CashAndSavingsAsset {
-  id: string;
-  type: "savings_account" | "fixed_deposit" | "money_market" | "notice_account" | "cash";
-  institution: string;
-  description?: string;
-  currentValue: CurrencyZAR;
-  interestRate?: number;
-  owner: AssetOwner;
-  liquidity: AssetLiquidity;
-}
-
-export interface InvestmentAsset {
-  id: string;
-  type: "unit_trust" | "etf" | "shares" | "endowment" | "tfsa" | "offshore" | "other";
-  provider: string;
-  fundName?: string;
-  currentValue: CurrencyZAR;
-  monthlyContribution?: CurrencyZAR;
-  owner: AssetOwner;
-  liquidity: AssetLiquidity;
-  isOffshore: boolean;
-}
-
-export interface RetirementAsset {
-  id: string;
-  type:
-    | "pension_fund"
-    | "provident_fund"
-    | "retirement_annuity"
-    | "preservation_fund"
-    | "living_annuity"
-    | "government_pension";
-  provider: string;
-  currentValue: CurrencyZAR;
-  monthlyContribution?: CurrencyZAR;
-  owner: AssetOwner;
-  fundGrowthRate?: number;
-}
-
-export interface PropertyAsset {
-  id: string;
-  type: "primary_residence" | "investment_property" | "commercial" | "vacant_land";
+  /** REQUIRED — human-readable label */
   description: string;
-  currentValue: CurrencyZAR;
-  outstandingBond?: CurrencyZAR;
-  monthlyRentalIncome?: CurrencyZAR;
-  owner: AssetOwner;
-  hasBodyCorporate?: boolean;
-}
 
-export interface BusinessAsset {
-  id: string;
-  businessName: string;
-  ownershipPercentage: number;
-  estimatedValue: CurrencyZAR;
-  hasValuation: boolean;
-  valuationDate?: string;
-  hasSuccessionPlan: boolean;
-}
+  /** REQUIRED */
+  owner: "self" | "spouse" | "joint" | "trust" | "business" | "other";
 
-export interface VehicleAsset {
-  id: string;
-  description: string;
-  estimatedValue: CurrencyZAR;
-  outstandingFinance?: CurrencyZAR;
-  owner: AssetOwner;
-}
+  /** OPTIONAL — current market or fund value */
+  currentValue?: Currency;
 
-export interface Assets {
-  cashAndSavings: CashAndSavingsAsset[];
-  investments: InvestmentAsset[];
-  retirementAssets: RetirementAsset[];
-  properties: PropertyAsset[];
-  businessAssets: BusinessAsset[];
-  vehicles: VehicleAsset[];
-  otherAssets: { id: string; description: string; estimatedValue: CurrencyZAR }[];
+  /** OPTIONAL — can this be liquidated within 30 days? */
+  liquid?: boolean;
 
-  // Computed totals
-  totalNetWorth?: CurrencyZAR;
-  totalLiquidAssets?: CurrencyZAR;
-  totalRetirementAssets?: CurrencyZAR;
-  totalPropertyValue?: CurrencyZAR;
+  /** OPTIONAL — bank, insurer, asset manager, or property description */
+  providerOrInstitution?: string;
+
+  /** OPTIONAL — for non-ZAR assets */
+  currency?: string;
+
+  /** OPTIONAL — monthly contribution into this asset */
+  monthlyContribution?: Currency;
+
+  /** OPTIONAL — expected annual growth rate (%) */
+  expectedReturnRate?: number;
+
+  /** OPTIONAL — for property: outstanding bond amount */
+  outstandingBond?: Currency;
+
+  /** OPTIONAL — for property: monthly rental income */
+  monthlyRentalIncome?: Currency;
+
+  /** OPTIONAL — for retirement assets: not dutiable in estate */
+  isRetirementAsset?: boolean;
+
+  /** OPTIONAL */
+  notes?: string;
 }

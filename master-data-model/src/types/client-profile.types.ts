@@ -1,13 +1,60 @@
-import { AuditStamp } from "./common.types";
-import { ClientIdentity, ContactDetails } from "./identity.types";
-import { Household } from "./household.types";
-import { Employment } from "./employment.types";
-import { CashFlow } from "./cashflow.types";
-import { Assets } from "./assets.types";
-import { Protection } from "./protection.types";
-import { RetirementPlanning } from "./retirement.types";
-import { EstatePlanning } from "./estate.types";
-import { Goals } from "./goals.types";
+import { ID, ISODateTime } from "./common.types";
+import { Identity, ContactDetails } from "./identity.types";
+import { HouseholdProfile } from "./household.types";
+import { EmploymentProfile } from "./employment.types";
+import { CashFlowProfile } from "./cashflow.types";
+import { AssetRecord } from "./assets.types";
+import { ProtectionPolicyRecord, MedicalAidRecord } from "./protection.types";
+import { RetirementProfile } from "./retirement.types";
+import { EstateProfile } from "./estate.types";
+import { GoalRecord } from "./goals.types";
+import { LiabilityType } from "./common.types";
+import { Currency } from "./common.types";
+
+/**
+ * LiabilityRecord — a single debt or obligation.
+ * Stored as a flat array on ClientProfile.
+ *
+ * USED BY: Protection Planner (debt-linked life cover), Estate Architect,
+ *          Financial Health Score (debt-to-income)
+ */
+export interface LiabilityRecord {
+  /** REQUIRED */
+  liabilityId: ID;
+
+  /** REQUIRED */
+  liabilityType: LiabilityType;
+
+  /** OPTIONAL */
+  provider?: string;
+
+  /** REQUIRED — human-readable label */
+  description: string;
+
+  /** OPTIONAL */
+  outstandingBalance?: Currency;
+
+  /** OPTIONAL */
+  monthlyRepayment?: Currency;
+
+  /** OPTIONAL */
+  interestRate?: number;
+
+  /** OPTIONAL */
+  remainingTermMonths?: number;
+
+  /** OPTIONAL — home loan, vehicle = secured */
+  secured?: boolean;
+
+  /** OPTIONAL */
+  collateral?: string;
+
+  /** OPTIONAL */
+  owner?: "self" | "spouse" | "joint";
+
+  /** OPTIONAL */
+  notes?: string;
+}
 
 /**
  * ClientProfile — the reusable core of a client's financial life.
@@ -17,134 +64,113 @@ import { Goals } from "./goals.types";
  * outputs back here — those go into PlatformRecord.toolOutputs.
  *
  * Structure mirrors how a good financial adviser thinks:
- * 1. Who are you?          → identity + contact
- * 2. Who depends on you?   → household
- * 3. How do you earn?      → employment
- * 4. What flows in/out?    → cashFlow
- * 5. What do you own?      → assets
- * 6. What do you owe?      → liabilities
- * 7. Are you protected?    → protection
- * 8. What about later?     → retirement
- * 9. What happens at end?  → estate
- * 10. What are you working towards? → goals
+ * 1. Who are you?                → identity + contact
+ * 2. Who depends on you?         → household
+ * 3. How do you earn?            → employment (income lives here)
+ * 4. What flows in/out?          → cashFlow (expenses live here)
+ * 5. What do you own?            → assets[]
+ * 6. What do you owe?            → liabilities[]
+ * 7. Are you protected?          → protection[] + medicalAid
+ * 8. What about later?           → retirement
+ * 9. What happens at end?        → estate
+ * 10. What are you working towards? → goals[]
  */
 export interface ClientProfile {
-  // ── 1. Who are you? ───────────────────────────────────────────
-  /** REQUIRED to create record */
-  identity: ClientIdentity;
+  /** REQUIRED — platform-assigned unique identifier */
+  clientId: ID;
 
-  /** REQUIRED to create record */
+  /** REQUIRED */
+  profileStatus: "draft" | "active" | "archived";
+
+  /** REQUIRED */
+  createdAt: ISODateTime;
+
+  /** REQUIRED */
+  updatedAt: ISODateTime;
+
+  // ── 1. Who are you? ─────────────────────────────────────────────────
+  /** REQUIRED to create record — minimum: firstName + lastName + maritalStatus */
+  identity: Identity;
+
+  /** REQUIRED to create record — minimum: mobileNumber or emailAddress */
   contact: ContactDetails;
 
-  // ── 2. Who depends on you? ────────────────────────────────────
+  // ── 2. Who depends on you? ──────────────────────────────────────────
   /** REQUIRED — household structure affects every planning domain */
-  household: Household;
+  household: HouseholdProfile;
 
-  // ── 3. How do you earn? ───────────────────────────────────────
-  /** REQUIRED — employment context (stability, group benefits, self-employment) */
-  employment: Employment;
-
-  // ── 4. What flows in/out? ─────────────────────────────────────
-  /** REQUIRED — income, expenses, savings rate, debt load */
-  cashFlow: CashFlow;
-
-  // ── 5. What do you own? ───────────────────────────────────────
+  // ── 3. How do you earn? ─────────────────────────────────────────────
   /**
-   * REQUIRED (can be empty) — all assets by category.
-   * Empty arrays are valid — "no assets" is a meaningful data point.
+   * REQUIRED — employmentStatus required; income figures strongly recommended.
+   * Income (monthlyGrossIncome, monthlyNetIncome) lives here.
    */
-  assets: Assets;
+  employment: EmploymentProfile;
 
-  // ── 6. What do you owe? ───────────────────────────────────────
+  // ── 4. What flows in/out? ───────────────────────────────────────────
   /**
-   * REQUIRED (can be empty) — all liabilities.
-   * Empty array = debt free (valid).
+   * REQUIRED — expense figures strongly recommended for health score.
+   * All fields optional to allow incremental completion.
    */
-  liabilities: Liability[];
+  cashFlow: CashFlowProfile;
 
-  // ── 7. Are you protected? ─────────────────────────────────────
-  /** REQUIRED — existing cover and medical aid; empty policies array is valid */
-  protection: Protection;
-
-  // ── 8. What about later? ──────────────────────────────────────
-  /** OPTIONAL — populated when retirement planning section is visited */
-  retirement?: RetirementPlanning;
-
-  // ── 9. What happens at end? ───────────────────────────────────
-  /** OPTIONAL — populated when estate planning section is visited */
-  estate?: EstatePlanning;
-
-  // ── 10. What are you working towards? ─────────────────────────
-  /** OPTIONAL — populated when goals section is visited */
-  goals?: Goals;
-
-  // ── Profile metadata ──────────────────────────────────────────
+  // ── 5. What do you own? ─────────────────────────────────────────────
   /**
-   * COMPUTED — 0 to 100. Percentage of non-optional fields completed.
+   * REQUIRED (can be empty array).
+   * Flat array of all assets regardless of type.
+   * Filter by assetRecord.assetType to get specific categories.
+   */
+  assets: AssetRecord[];
+
+  // ── 6. What do you owe? ─────────────────────────────────────────────
+  /**
+   * REQUIRED (can be empty array).
+   * Empty array = debt free (valid and meaningful).
+   */
+  liabilities: LiabilityRecord[];
+
+  // ── 7. Are you protected? ───────────────────────────────────────────
+  /**
+   * REQUIRED (can be empty array).
+   * Flat array of all protection policies.
+   * Filter by policyType to get specific cover types.
+   */
+  protection: ProtectionPolicyRecord[];
+
+  /** OPTIONAL — medical aid is kept separate from protection policies */
+  medicalAid?: MedicalAidRecord;
+
+  // ── 8. What about later? ────────────────────────────────────────────
+  /** OPTIONAL — populated when Retirement Architect is first visited */
+  retirement?: RetirementProfile;
+
+  // ── 9. What happens at end? ─────────────────────────────────────────
+  /** OPTIONAL — populated when Estate Architect is first visited */
+  estate?: EstateProfile;
+
+  // ── 10. What are you working towards? ───────────────────────────────
+  /** OPTIONAL (can be empty array) — populated when Goals section is visited */
+  goals?: GoalRecord[];
+
+  // ── Profile metadata ─────────────────────────────────────────────────
+  /**
+   * COMPUTED — 0 to 100.
+   * Percentage of recommended fields that are populated.
    * Updated on every profile save.
    */
   completionScore?: number;
 
   /**
-   * Tracks which sections the client has visited/completed.
-   * Used by onboarding flow and dashboard progress indicators.
+   * Tracks which sections the client has completed.
+   * Used by onboarding progress indicators and tool unlock logic.
    */
   completedSections?: ProfileSection[];
-
-  /** ISO datetime of last profile edit by client or adviser */
-  lastUpdatedAt?: string;
 }
 
-// ── Liability ─────────────────────────────────────────────────────────────
-
-export interface Liability {
-  /** REQUIRED */
-  id: string;
-
-  /** REQUIRED */
-  type:
-    | "home_loan"
-    | "vehicle_finance"
-    | "personal_loan"
-    | "credit_card"
-    | "overdraft"
-    | "business_debt"
-    | "student_loan"
-    | "other";
-
-  /** REQUIRED */
-  provider: string;
-
-  /** OPTIONAL */
-  description?: string;
-
-  /** REQUIRED */
-  outstandingBalance: number;
-
-  /** REQUIRED */
-  monthlyRepayment: number;
-
-  /** OPTIONAL — used in debt-to-income and estate calculations */
-  interestRate?: number;
-
-  /** OPTIONAL */
-  remainingTermMonths?: number;
-
-  /** REQUIRED */
-  owner: "self" | "spouse" | "joint";
-
-  /** REQUIRED — secured = has collateral (home loan, vehicle finance) */
-  isSecured: boolean;
-
-  /** OPTIONAL — asset serving as collateral */
-  collateral?: string;
-}
-
-// ── Utility types ─────────────────────────────────────────────────────────
+// ── Utility types ──────────────────────────────────────────────────────────
 
 /**
- * ProfileSection — the 10 sections of the client profile.
- * Used by onboarding flow, completion tracking, and tool prefill logic.
+ * ProfileSection — the 10 logical sections of the client profile.
+ * Used by onboarding flow, completion tracking, and prefill logic.
  */
 export type ProfileSection =
   | "identity"
@@ -160,18 +186,19 @@ export type ProfileSection =
   | "goals";
 
 /**
- * PartialClientProfile — used during onboarding and incremental saves.
- * All sections optional so profile can be built progressively.
+ * PartialClientProfile — all sections optional.
+ * Used during onboarding for incremental saves.
  */
 export type PartialClientProfile = Partial<ClientProfile>;
 
 /**
- * ProfileSectionStatus — per-section completion state for the dashboard.
+ * ProfileSectionStatus — completion state for a single profile section.
+ * Used by dashboard progress components.
  */
 export interface ProfileSectionStatus {
   section: ProfileSection;
   isComplete: boolean;
   completedFieldCount: number;
   totalRequiredFieldCount: number;
-  lastUpdatedAt?: string;
+  lastUpdatedAt?: ISODateTime;
 }

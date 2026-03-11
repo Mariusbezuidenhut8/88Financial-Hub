@@ -1,37 +1,56 @@
-export type AdviceCaseType =
-  | "funeral_planning"
-  | "retirement_planning"
-  | "protection_planning"
-  | "estate_planning"
-  | "investment_planning"
-  | "comprehensive_financial_plan";
+import { ID, ISODateTime, AdviceCaseType, AdviceCaseStatus } from "./common.types";
 
-export type AdviceCaseStatus =
-  | "draft"
-  | "in_progress"
-  | "pending_client_acceptance"
-  | "accepted"
-  | "completed"
-  | "cancelled";
-
+/**
+ * AdviceCase — a specific planning journey for one client.
+ *
+ * Each case captures a snapshot of inputs + outputs AT THE TIME of advice.
+ * Once status = "completed", the case is IMMUTABLE — never edit snapshots.
+ *
+ * USED BY: ROA Builder, dashboard (case history), compliance reporting
+ */
 export interface AdviceCase {
-  caseId: string;
+  /** REQUIRED */
+  caseId: ID;
+
+  /** REQUIRED */
   caseType: AdviceCaseType;
-  clientId: string;
-  adviserId: string;
+
+  /** REQUIRED */
   status: AdviceCaseStatus;
-  title?: string;
 
-  // Snapshots at time of advice (immutable after completion)
-  profileSnapshot?: Record<string, unknown>;
-  outputSnapshot?: Record<string, unknown>;
+  /** REQUIRED */
+  linkedClientId: ID;
 
-  // ROA linkage
-  roaDocumentId?: string;
+  /** REQUIRED — human-readable case title */
+  title: string;
+
+  /** REQUIRED */
+  createdAt: ISODateTime;
+
+  /** REQUIRED */
+  updatedAt: ISODateTime;
+
+  /** OPTIONAL — ISO datetime when status became "completed" */
+  completedAt?: ISODateTime;
+
+  /** OPTIONAL — adviser who handled this case */
+  advisorId?: ID;
+
+  /**
+   * OPTIONAL — immutable snapshot of the ClientProfile at time of advice.
+   * Captured when case is completed. Never update after capture.
+   */
+  inputsSnapshot?: Record<string, unknown>;
+
+  /**
+   * OPTIONAL — immutable snapshot of ToolOutputs relevant to this case.
+   * Captured when case is completed. Never update after capture.
+   */
+  outputsSnapshot?: Record<string, unknown>;
+
+  /** OPTIONAL — human-readable summary of the recommendation given */
   recommendationSummary?: string;
-  adviserNotes?: string;
 
-  createdAt: string;
-  updatedAt: string;
-  completedAt?: string;
+  /** OPTIONAL — free-text adviser notes */
+  notes?: string;
 }

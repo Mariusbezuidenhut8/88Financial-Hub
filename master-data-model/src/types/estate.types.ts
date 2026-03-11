@@ -1,43 +1,78 @@
-import { CurrencyZAR } from "./common.types";
+import { ISODate, Currency } from "./common.types";
 
-export interface EstatePlanning {
-  // Will
-  hasWill: boolean;
-  willLastUpdated?: string;
+/**
+ * EstateProfile — everything the Estate Architect needs.
+ * USED BY: Estate Architect, Financial Health Score (hasWill check)
+ */
+export interface EstateProfile {
+  // ── Will ──────────────────────────────────────────────────────────────
+  /** REQUIRED for health score */
+  hasWill?: boolean;
+
+  /** OPTIONAL — staleness check (>3 years = flag for review) */
+  willLastUpdated?: ISODate;
+
+  /** OPTIONAL */
   willStorageLocation?: string;
-  executorAppointed?: boolean;
+
+  // ── Executor ──────────────────────────────────────────────────────────
+  /** OPTIONAL */
+  executorChosen?: boolean;
+
+  /** OPTIONAL */
   executorName?: string;
+
+  /** OPTIONAL */
   alternateExecutorName?: string;
 
-  // Guardianship
-  hasMinorChildren?: boolean;
-  guardianAppointed?: boolean;
+  // ── Guardianship ──────────────────────────────────────────────────────
+  /** OPTIONAL — set if household has minor children */
+  nominatedGuardian?: boolean;
+
+  /** OPTIONAL */
   guardianName?: string;
 
-  // Beneficiaries
+  // ── Beneficiaries ─────────────────────────────────────────────────────
+  /** OPTIONAL */
   beneficiariesReviewed?: boolean;
-  beneficiaryReviewDate?: string;
 
-  // Trusts
-  hasTrust?: boolean;
+  /** OPTIONAL */
+  beneficiaryReviewDate?: ISODate;
+
+  // ── Trusts ────────────────────────────────────────────────────────────
+  /** OPTIONAL */
+  trustsInPlace?: boolean;
+
+  /** OPTIONAL */
   trustType?: "inter_vivos" | "testamentary";
+
+  /** OPTIONAL */
   trustName?: string;
-  trusteeNames?: string[];
-  trustPurpose?: string;
 
-  // Estate duty exposure (computed by Estate Architect)
-  estimatedGrossEstate?: CurrencyZAR;
-  estimatedEstateDuty?: CurrencyZAR;
-  estimatedEstateLiquidityCosts?: CurrencyZAR;
-  estimatedEstateLiquidityShortfall?: CurrencyZAR;
-  hasLiquidityPlan?: boolean;
+  // ── Business succession ───────────────────────────────────────────────
+  /** OPTIONAL */
+  businessSuccessionNeeds?: boolean;
 
-  // Business succession
-  hasBusinessInterest?: boolean;
+  /** OPTIONAL */
   hasSuccessionPlan?: boolean;
-  businessSuccessionNotes?: string;
 
-  // Special bequests / notes
-  specialBequests?: string;
+  // ── Special instructions ──────────────────────────────────────────────
+  /** OPTIONAL */
+  specialBequests?: boolean;
+
+  /** OPTIONAL — free text for adviser notes */
   estateNotes?: string;
+
+  // ── Computed (set by Estate Architect) ───────────────────────────────
+  /** COMPUTED */
+  estimatedNetEstate?: Currency;
+
+  /** COMPUTED */
+  estimatedEstateDuty?: Currency;
+
+  /** COMPUTED */
+  estimatedLiquidityNeed?: Currency;
+
+  /** COMPUTED */
+  estimatedLiquidityShortfall?: Currency;
 }
