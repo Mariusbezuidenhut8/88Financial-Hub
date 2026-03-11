@@ -1,0 +1,14 @@
+{
+  "name": "@88fh/master-data-model",
+  "version": "1.0.0",
+  "description": "Master client data model for 88 Financial Hub — the single source of truth for all planning tools",
+  "main": "src/types/index.ts",
+  "types": "src/types/index.ts",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

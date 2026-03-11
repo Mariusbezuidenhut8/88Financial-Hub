@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# TypeScript
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+~$*
+*.tmp
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Word temp files
+~$*.docx
+~$*.xlsx
+~$*.pptx
