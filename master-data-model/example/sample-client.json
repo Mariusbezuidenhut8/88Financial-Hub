@@ -1,281 +1,344 @@
 {
-  "identity": {
-    "clientId": "cl_thabo_001",
-    "firstName": "Thabo",
-    "lastName": "Nkosi",
-    "preferredName": "Thabo",
-    "idNumber": "8501155800086",
-    "dateOfBirth": "1985-01-15",
-    "age": 41,
-    "gender": "male",
-    "maritalStatus": "married",
-    "nationality": "South African",
-    "preferredLanguage": "English",
-    "communicationPreferences": ["whatsapp", "email"],
-    "isAdvisorClient": true,
-    "adviserId": "adv_001"
-  },
-  "contact": {
-    "mobileNumber": "0821234567",
-    "emailAddress": "thabo.nkosi@email.co.za",
-    "physicalAddress": {
-      "line1": "12 Acacia Street",
-      "suburb": "Fourways",
-      "city": "Johannesburg",
-      "province": "Gauteng",
-      "postalCode": "2191",
-      "country": "South Africa"
-    }
-  },
-  "household": {
-    "hasSpouseOrPartner": true,
-    "spouseOrPartner": {
-      "firstName": "Nomsa",
+  "recordId": "rec_thabo_001",
+  "clientProfile": {
+    "identity": {
+      "clientId": "cl_thabo_001",
+      "firstName": "Thabo",
       "lastName": "Nkosi",
-      "age": 38,
-      "gender": "female",
-      "isFinanciallyDependent": false,
-      "monthlyIncome": 25000
+      "preferredName": "Thabo",
+      "idNumber": "8501155800086",
+      "dateOfBirth": "1985-01-15",
+      "age": 41,
+      "gender": "male",
+      "maritalStatus": "married",
+      "nationality": "South African",
+      "preferredLanguage": "English",
+      "communicationPreferences": ["whatsapp", "email"],
+      "isAdvisorClient": true,
+      "adviserId": "adv_001",
+      "profileCompletionScore": 82
     },
-    "numberOfChildren": 2,
-    "children": [
+    "contact": {
+      "mobileNumber": "0821234567",
+      "emailAddress": "thabo.nkosi@email.co.za",
+      "physicalAddress": {
+        "line1": "12 Acacia Street",
+        "suburb": "Fourways",
+        "city": "Johannesburg",
+        "province": "Gauteng",
+        "postalCode": "2191",
+        "country": "South Africa"
+      }
+    },
+    "household": {
+      "hasSpouseOrPartner": true,
+      "spouseOrPartner": {
+        "firstName": "Nomsa",
+        "lastName": "Nkosi",
+        "age": 38,
+        "gender": "female",
+        "isFinanciallyDependent": false,
+        "monthlyIncome": 25000
+      },
+      "numberOfChildren": 2,
+      "children": [
+        {
+          "id": "ch_001",
+          "firstName": "Sipho",
+          "age": 12,
+          "isDependent": true,
+          "isFullTimeStudent": true
+        },
+        {
+          "id": "ch_002",
+          "firstName": "Zanele",
+          "age": 8,
+          "isDependent": true,
+          "isFullTimeStudent": true
+        }
+      ],
+      "dependantAdults": [
+        {
+          "id": "da_001",
+          "relationship": "parent",
+          "firstName": "MaNkosi",
+          "age": 68,
+          "isFinanciallySupported": true,
+          "monthlySupport": 3000
+        }
+      ],
+      "parentsSupported": 1,
+      "extendedFamilySupported": 0,
+      "hasGuardianshipNeeds": true,
+      "nominatedGuardian": "Bongani Nkosi"
+    },
+    "employment": {
+      "employmentStatus": "employed_full_time",
+      "occupation": "Senior Engineer",
+      "employerName": "TechCorp SA",
+      "isSelfEmployed": false,
+      "sector": "private",
+      "yearsWithCurrentEmployer": 7,
+      "hasGroupRetirementBenefit": true,
+      "hasGroupRiskBenefit": true
+    },
+    "cashFlow": {
+      "monthlyGrossIncome": 65000,
+      "monthlyNetIncome": 48000,
+      "additionalIncomeSources": [],
+      "totalHouseholdMonthlyIncome": 73000,
+      "monthlyEssentialExpenses": 18000,
+      "monthlyLifestyleExpenses": 8000,
+      "monthlyDebtRepayments": 9500,
+      "monthlySavingsContributions": 2000,
+      "monthlyRetirementContributions": 5000,
+      "monthlyInsurancePremiums": 2800,
+      "monthlyDisposableIncome": 2700,
+      "savingsRate": 14.6,
+      "debtToIncomeRatio": 19.8,
+      "hasEmergencyFund": true,
+      "emergencyFundAmount": 25000,
+      "emergencyFundMonthsCovered": 0.97
+    },
+    "assets": {
+      "cashAndSavings": [
+        {
+          "id": "cs_001",
+          "type": "savings_account",
+          "institution": "Capitec",
+          "currentValue": 25000,
+          "owner": "self",
+          "liquidity": "liquid"
+        }
+      ],
+      "investments": [
+        {
+          "id": "inv_001",
+          "type": "unit_trust",
+          "provider": "Allan Gray",
+          "fundName": "Allan Gray Balanced Fund",
+          "currentValue": 180000,
+          "monthlyContribution": 2000,
+          "owner": "self",
+          "liquidity": "semi_liquid",
+          "isOffshore": false
+        }
+      ],
+      "retirementAssets": [
+        {
+          "id": "ret_001",
+          "type": "pension_fund",
+          "provider": "TechCorp Pension",
+          "currentValue": 750000,
+          "monthlyContribution": 5000,
+          "owner": "self"
+        }
+      ],
+      "properties": [
+        {
+          "id": "prop_001",
+          "type": "primary_residence",
+          "description": "Family home, Fourways",
+          "currentValue": 2500000,
+          "outstandingBond": 1200000,
+          "owner": "joint"
+        }
+      ],
+      "businessAssets": [],
+      "vehicles": [
+        {
+          "id": "veh_001",
+          "description": "2022 Toyota Fortuner",
+          "estimatedValue": 550000,
+          "outstandingFinance": 380000,
+          "owner": "self"
+        }
+      ],
+      "otherAssets": [],
+      "totalNetWorth": 1925000,
+      "totalLiquidAssets": 205000,
+      "totalRetirementAssets": 750000,
+      "totalPropertyValue": 2500000
+    },
+    "liabilities": [
       {
-        "id": "ch_001",
-        "firstName": "Sipho",
-        "age": 12,
-        "isDependent": true,
-        "isFullTimeStudent": true
+        "id": "lib_001",
+        "type": "home_loan",
+        "provider": "FNB",
+        "outstandingBalance": 1200000,
+        "monthlyRepayment": 12000,
+        "interestRate": 11.75,
+        "owner": "joint",
+        "isSecured": true,
+        "collateral": "Primary residence"
       },
       {
-        "id": "ch_002",
-        "firstName": "Zanele",
-        "age": 8,
-        "isDependent": true,
-        "isFullTimeStudent": true
-      }
-    ],
-    "dependantAdults": [
-      {
-        "id": "da_001",
-        "relationship": "parent",
-        "firstName": "MaNkosi",
-        "age": 68,
-        "isFinanciallySupported": true,
-        "monthlySupport": 3000
-      }
-    ],
-    "parentsSupported": 1,
-    "extendedFamilySupported": 0,
-    "hasGuardianshipNeeds": true,
-    "nominatedGuardian": "Bongani Nkosi"
-  },
-  "cashFlow": {
-    "employmentStatus": "employed_full_time",
-    "occupation": "Senior Engineer",
-    "employerName": "TechCorp SA",
-    "isSelfEmployed": false,
-    "monthlyGrossIncome": 65000,
-    "monthlyNetIncome": 48000,
-    "additionalIncomeSources": [],
-    "totalHouseholdMonthlyIncome": 73000,
-    "monthlyEssentialExpenses": 18000,
-    "monthlyLifestyleExpenses": 8000,
-    "monthlyDebtRepayments": 9500,
-    "monthlySavingsContributions": 2000,
-    "monthlyRetirementContributions": 5000,
-    "monthlyInsurancePremiums": 2800,
-    "monthlyDisposableIncome": 2700,
-    "hasEmergencyFund": true,
-    "emergencyFundAmount": 25000,
-    "emergencyFundMonthsCovered": 0.97
-  },
-  "assets": {
-    "cashAndSavings": [
-      {
-        "id": "cs_001",
-        "type": "savings_account",
-        "institution": "Capitec",
-        "currentValue": 25000,
+        "id": "lib_002",
+        "type": "vehicle_finance",
+        "provider": "WesBank",
+        "outstandingBalance": 380000,
+        "monthlyRepayment": 7500,
+        "interestRate": 13.5,
+        "remainingTermMonths": 54,
         "owner": "self",
-        "liquidity": "liquid"
+        "isSecured": true,
+        "collateral": "2022 Toyota Fortuner"
       }
     ],
-    "investments": [
-      {
-        "id": "inv_001",
-        "type": "unit_trust",
-        "provider": "Allan Gray",
-        "fundName": "Allan Gray Balanced Fund",
-        "currentValue": 180000,
-        "monthlyContribution": 2000,
-        "owner": "self",
-        "liquidity": "semi_liquid",
-        "isOffshore": false
-      }
-    ],
-    "retirementAssets": [
-      {
-        "id": "ret_001",
-        "type": "pension_fund",
-        "provider": "TechCorp Pension",
-        "currentValue": 750000,
-        "monthlyContribution": 5000,
-        "owner": "self"
-      }
-    ],
-    "properties": [
-      {
-        "id": "prop_001",
-        "type": "primary_residence",
-        "description": "Family home, Fourways",
-        "currentValue": 2500000,
-        "outstandingBond": 1200000,
-        "owner": "joint"
-      }
-    ],
-    "businessAssets": [],
-    "vehicles": [
-      {
-        "id": "veh_001",
-        "description": "2022 Toyota Fortuner",
-        "estimatedValue": 550000,
-        "outstandingFinance": 380000,
-        "owner": "self"
-      }
-    ],
-    "otherAssets": []
-  },
-  "liabilities": [
-    {
-      "id": "lib_001",
-      "type": "home_loan",
-      "provider": "FNB",
-      "outstandingBalance": 1200000,
-      "monthlyRepayment": 12000,
-      "interestRate": 11.75,
-      "owner": "joint",
-      "isSecured": true,
-      "collateral": "Primary residence"
+    "protection": {
+      "policies": [
+        {
+          "id": "pol_001",
+          "policyType": "life_cover",
+          "provider": "Old Mutual",
+          "status": "active",
+          "owner": "self",
+          "livesCovered": ["self"],
+          "coverAmount": 2000000,
+          "monthlyPremium": 1800
+        },
+        {
+          "id": "pol_002",
+          "policyType": "funeral_cover",
+          "provider": "AVBOB",
+          "status": "active",
+          "owner": "self",
+          "livesCovered": ["self", "spouse"],
+          "coverAmount": 50000,
+          "monthlyPremium": 180
+        },
+        {
+          "id": "pol_003",
+          "policyType": "group_life",
+          "provider": "TechCorp Group Scheme",
+          "status": "active",
+          "owner": "employer",
+          "livesCovered": ["self"],
+          "coverAmount": 1950000,
+          "monthlyPremium": 0,
+          "notes": "3x annual salary — employer-paid group scheme"
+        }
+      ],
+      "medicalAid": {
+        "hasMedicalAid": true,
+        "provider": "Discovery Health",
+        "planName": "Classic Comprehensive",
+        "monthlyPremium": 4800,
+        "livesCovered": 4,
+        "hasGapCover": false
+      },
+      "totalLifeCover": 3950000,
+      "totalFuneralCover": 50000,
+      "lifeCoverShortfall": 0,
+      "funeralCoverShortfall": 150000
     },
+    "retirement": {
+      "targetRetirementAge": 65,
+      "yearsToRetirement": 24,
+      "desiredMonthlyRetirementIncome": 35000,
+      "desiredRetirementIncomeInTodaysMoney": 35000,
+      "totalCurrentRetirementSavings": 750000,
+      "monthlyRetirementContribution": 5000,
+      "riskTolerance": "moderate",
+      "inflationAssumption": 6,
+      "expectedReturnRate": 10,
+      "retirementReadinessStatus": "slightly_behind",
+      "retirementNotes": "Has good group pension but personal RA contributions are low."
+    },
+    "estate": {
+      "hasWill": true,
+      "willLastUpdated": "2023-06-15",
+      "executorAppointed": true,
+      "executorName": "ABC Attorneys",
+      "hasMinorChildren": true,
+      "guardianAppointed": true,
+      "guardianName": "Bongani Nkosi",
+      "beneficiariesReviewed": true,
+      "hasTrust": false,
+      "hasBusinessInterest": false,
+      "estimatedGrossEstate": 3455000,
+      "estimatedEstateDuty": 0,
+      "estimatedEstateLiquidityCosts": 172750,
+      "estimatedEstateLiquidityShortfall": 0
+    },
+    "goals": {
+      "goals": [
+        {
+          "id": "goal_001",
+          "category": "retirement",
+          "horizon": "long_term",
+          "description": "Retire at 65 with R35k/month in today's money",
+          "targetDate": "2050-01-15",
+          "priority": "high",
+          "status": "in_progress"
+        },
+        {
+          "id": "goal_002",
+          "category": "education",
+          "horizon": "medium_term",
+          "description": "Fund university for Sipho and Zanele",
+          "targetAmount": 500000,
+          "targetDate": "2031-01-01",
+          "monthlyContribution": 2000,
+          "priority": "high",
+          "status": "behind"
+        },
+        {
+          "id": "goal_003",
+          "category": "emergency_fund",
+          "horizon": "short_term",
+          "description": "Build 6-month emergency fund",
+          "targetAmount": 144000,
+          "currentProgress": 25000,
+          "priority": "medium",
+          "status": "behind"
+        }
+      ],
+      "topPriority": "goal_001"
+    },
+    "completionScore": 82,
+    "completedSections": ["identity", "contact", "household", "employment", "cashFlow", "assets", "liabilities", "protection", "retirement", "estate"]
+  },
+  "toolOutputs": {
+    "financialHealthScore": null,
+    "retirementAnalysis": null,
+    "protectionAnalysis": null,
+    "estateAnalysis": null,
+    "investmentWrapper": null
+  },
+  "adviceCases": [],
+  "documents": [],
+  "auditEvents": [
     {
-      "id": "lib_002",
-      "type": "vehicle_finance",
-      "provider": "WesBank",
-      "outstandingBalance": 380000,
-      "monthlyRepayment": 7500,
-      "interestRate": 13.5,
-      "remainingTermMonths": 54,
-      "owner": "self",
-      "isSecured": true,
-      "collateral": "2022 Toyota Fortuner"
+      "id": "evt_001",
+      "eventType": "profile_created",
+      "description": "Client profile created during onboarding",
+      "performedBy": "adv_001",
+      "performedAt": "2026-03-11T08:00:00.000Z"
     }
   ],
-  "protection": {
-    "policies": [
-      {
-        "id": "pol_001",
-        "policyType": "life_cover",
-        "provider": "Old Mutual",
-        "status": "active",
-        "owner": "self",
-        "livesCovered": ["self"],
-        "coverAmount": 2000000,
-        "monthlyPremium": 1800
-      },
-      {
-        "id": "pol_002",
-        "policyType": "funeral_cover",
-        "provider": "AVBOB",
-        "status": "active",
-        "owner": "self",
-        "livesCovered": ["self", "spouse"],
-        "coverAmount": 50000,
-        "monthlyPremium": 180
-      }
-    ],
-    "medicalAid": {
-      "hasMedicalAid": true,
-      "provider": "Discovery Health",
-      "planName": "Classic Comprehensive",
-      "monthlyPremium": 4800,
-      "livesCovered": 4,
-      "hasGapCover": false
+  "consentRecords": [
+    {
+      "id": "cns_001",
+      "consentType": "popi_act",
+      "version": "1.0",
+      "acceptedAt": "2026-03-11T08:00:00.000Z",
+      "channel": "web"
     },
-    "totalLifeCover": 2000000,
-    "totalFuneralCover": 50000
-  },
-  "retirement": {
-    "targetRetirementAge": 65,
-    "yearsToRetirement": 24,
-    "desiredMonthlyRetirementIncome": 35000,
-    "desiredRetirementIncomeInTodaysMoney": 35000,
-    "totalCurrentRetirementSavings": 750000,
-    "monthlyRetirementContribution": 5000,
-    "riskTolerance": "moderate",
-    "inflationAssumption": 6,
-    "retirementReadinessStatus": "slightly_behind"
-  },
-  "estate": {
-    "hasWill": true,
-    "willLastUpdated": "2023-06-15",
-    "executorAppointed": true,
-    "executorName": "ABC Attorneys",
-    "hasMinorChildren": true,
-    "guardianAppointed": true,
-    "guardianName": "Bongani Nkosi",
-    "beneficiariesReviewed": true,
-    "hasTrust": false,
-    "hasBusinessInterest": false
-  },
-  "goals": {
-    "goals": [
-      {
-        "id": "goal_001",
-        "category": "retirement",
-        "horizon": "long_term",
-        "description": "Retire comfortably at 65 with R35k/month income",
-        "targetDate": "2050-01-15",
-        "priority": "high",
-        "status": "in_progress"
-      },
-      {
-        "id": "goal_002",
-        "category": "education",
-        "horizon": "medium_term",
-        "description": "Fund university education for both children",
-        "targetAmount": 500000,
-        "targetDate": "2031-01-01",
-        "monthlyContribution": 2000,
-        "priority": "high",
-        "status": "in_progress"
-      },
-      {
-        "id": "goal_003",
-        "category": "emergency_fund",
-        "horizon": "short_term",
-        "description": "Build 6 months emergency fund",
-        "targetAmount": 144000,
-        "currentProgress": 25000,
-        "priority": "medium",
-        "status": "behind"
-      }
-    ],
-    "topPriority": "goal_001"
-  },
-  "toolOutputs": {},
-  "adviceCases": [],
-  "compliance": {
-    "consentRecords": [],
-    "disclosureRecords": [],
-    "auditEvents": [],
-    "documents": [],
-    "advisorNotes": []
-  },
+    {
+      "id": "cns_002",
+      "consentType": "data_processing",
+      "version": "1.0",
+      "acceptedAt": "2026-03-11T08:00:00.000Z",
+      "channel": "web"
+    }
+  ],
+  "disclosureRecords": [],
   "audit": {
     "createdAt": "2026-03-11T08:00:00.000Z",
     "updatedAt": "2026-03-11T08:00:00.000Z",
     "createdBy": "adv_001"
   },
-  "profileVersion": 1,
+  "schemaVersion": 2,
   "isArchived": false
 }
