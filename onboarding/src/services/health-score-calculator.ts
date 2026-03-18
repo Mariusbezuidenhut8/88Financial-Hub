@@ -1,203 +1,352 @@
 import { OnboardingState } from "../types/onboarding-state.types";
+import type {
+  FinancialHealthBand,
+  FinancialHealthScoreResult,
+} from "../types/financial-health.types";
 
-export type HealthScoreBand =
-  | "strong"
-  | "good_foundation"
-  | "needs_attention"
-  | "financial_stress_risk"
-  | "urgent_action_needed";
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-export interface HealthScoreResult {
-  overallScore: number;
-  band: HealthScoreBand;
-  categoryScores: {
+function clamp(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, value));
+}
+
+function getBand(score: number): FinancialHealthBand {
+  if (score >= 80) return "strong";
+  if (score >= 65) return "good_foundation";
+  if (score >= 50) return "needs_attention";
+  if (score >= 35) return "financial_stress_risk";
+  return "urgent_action_needed";
+}
+
+/** Returns undefined when denominator is zero or missing — avoids /0 errors */
+function safeDivide(numerator?: number, denominator?: number): number | undefined {
+  if (!numerator || !denominator || denominator <= 0) return undefined;
+  return numerator / denominator;
+}
+
+// ── Category calculators ──────────────────────────────────────────────────────
+
+/**
+ * CASH FLOW SCORE (0–20)
+ * - Savings rate component (0–10): how much of net income is saved each month
+ * - Month-end resilience component (0–10): subjective month-end position
+ */
+function calculateCashFlowScore(state: OnboardingState): {
+  score: number;
+  savingsRate?: number;
+} {
+  const netIncome = state.income.monthlyNetIncome ?? 0;
+  const monthlySavings = state.savings.monthlySavings ?? 0;
+  const retirementContribution = state.savings.monthlyRetirementContribution ?? 0;
+  const totalSaved = monthlySavings + retirementContribution;
+  const savingsRate = safeDivide(totalSaved, netIncome);
+
+  let savingsRateScore = 0;
+  const rate = savingsRate ?? 0;
+  if (rate >= 0.15) savingsRateScore = 10;
+  else if (rate >= 0.10) savingsRateScore = 8;
+  else if (rate >= 0.05) savingsRateScore = 5;
+  else if (rate > 0) savingsRateScore = 2;
+
+  let monthEndScore = 0;
+  switch (state.spending.monthEndPosition) {
+    case "comfortable_surplus":
+      monthEndScore = 10;
+      break;
+    case "small_surplus":
+      monthEndScore = 7;
+      break;
+    case "break_even":
+      monthEndScore = 4;
+      break;
+    case "shortfall":
+      monthEndScore = 0;
+      break;
+    default:
+      monthEndScore = 4; // unknown — neutral
+  }
+
+  return {
+    score: clamp(savingsRateScore + monthEndScore, 0, 20),
+    savingsRate,
+  };
+}
+
+/**
+ * DEBT SCORE (0–20)
+ * - Debt repayment ratio component (0–12): debt repayments as % of income
+ * - Debt quality component (0–8): penalises expensive unsecured debt types
+ */
+function calculateDebtScore(state: OnboardingState): {
+  score: number;
+  debtToIncomeRatio?: number;
+} {
+  const netIncome = state.income.monthlyNetIncome ?? 0;
+  const debtRepayments = state.spending.monthlyDebtRepayments ?? 0;
+  const debtToIncomeRatio = safeDivide(debtRepayments, netIncome);
+  const ratio = debtToIncomeRatio ?? 0;
+
+  let ratioScore = 0;
+  if (ratio < 0.20) ratioScore = 12;
+  else if (ratio < 0.30) ratioScore = 9;
+  else if (ratio < 0.40) ratioScore = 5;
+  else if (ratio < 0.50) ratioScore = 2;
+
+  const debtTypes = state.spending.debtTypes ?? [];
+  let qualityScore = 8;
+  if (debtTypes.includes("credit_card")) qualityScore -= 3;
+  if (debtTypes.includes("personal_loan")) qualityScore -= 3;
+  if (debtTypes.includes("vehicle_finance")) qualityScore -= 1;
+  qualityScore = clamp(qualityScore, 0, 8);
+
+  return {
+    score: clamp(ratioScore + qualityScore, 0, 20),
+    debtToIncomeRatio,
+  };
+}
+
+/**
+ * EMERGENCY FUND SCORE (0–20)
+ * Based on months of essential expenses covered by current emergency savings.
+ */
+function calculateEmergencyFundScore(state: OnboardingState): {
+  score: number;
+  emergencyMonths?: number;
+} {
+  const emergencySavings = state.savings.emergencySavingsAmount ?? 0;
+  const essentialExpenses = state.spending.monthlyEssentialExpenses ?? 0;
+  const emergencyMonths = safeDivide(emergencySavings, essentialExpenses);
+  const months = emergencyMonths ?? 0;
+
+  let score = 0;
+  if (months >= 6) score = 20;
+  else if (months >= 4) score = 15;
+  else if (months >= 2) score = 10;
+  else if (months >= 1) score = 5;
+
+  return { score, emergencyMonths };
+}
+
+/**
+ * PROTECTION SCORE (0–20)
+ * Not actuarial — practical presence/absence scoring weighted for South African risk profile.
+ * Life cover weight is reduced when there are no dependants.
+ */
+function calculateProtectionScore(state: OnboardingState): { score: number } {
+  const { family, protectionEstate } = state;
+
+  const hasDependants =
+    (family.hasSpouseOrPartner ?? false) ||
+    (family.numberOfChildren ?? 0) > 0 ||
+    (family.numberOfDependentAdults ?? 0) > 0 ||
+    (family.parentsSupported ?? 0) > 0 ||
+    (family.extendedFamilySupported ?? 0) > 0;
+
+  let score = 0;
+
+  // Funeral cover (max 4)
+  if (protectionEstate.hasFuneralCover === true) score += 4;
+  else if (protectionEstate.hasFuneralCover === undefined) score += 2; // unknown — partial credit
+
+  // Life cover (max 6 with dependants, max 4 without)
+  if (hasDependants) {
+    if (protectionEstate.hasLifeCover === true) score += 6;
+    else if (protectionEstate.hasLifeCover === undefined) score += 2;
+  } else {
+    if (protectionEstate.hasLifeCover === true) score += 4;
+    else score += 3; // not urgent without dependants
+  }
+
+  // Disability / income protection (max 4)
+  if (protectionEstate.hasDisabilityOrIncomeProtection === true) score += 4;
+  else if (protectionEstate.hasDisabilityOrIncomeProtection === undefined) score += 1;
+
+  // Medical aid (max 3)
+  if (protectionEstate.hasMedicalAid === true) score += 3;
+  else if (protectionEstate.hasMedicalAid === undefined) score += 1;
+
+  // Will + beneficiary nominations (max 3)
+  if (
+    protectionEstate.hasWill === true &&
+    protectionEstate.beneficiaryNominationsUpdated === "yes"
+  ) {
+    score += 3;
+  } else if (
+    protectionEstate.hasWill === true ||
+    protectionEstate.beneficiaryNominationsUpdated === "yes"
+  ) {
+    score += 1;
+  }
+
+  return { score: clamp(score, 0, 20) };
+}
+
+/**
+ * RETIREMENT SCORE (0–20)
+ * - Contribution rate component (0–10): monthly retirement contribution as % of gross income
+ * - Capital progress component (0–10): accumulated savings vs age-bracket benchmark multiple
+ *
+ * Benchmarks (savings as multiple of annual income):
+ *   < 30: 1×  |  30–39: 2×  |  40–49: 4×  |  50–59: 6×  |  60+: 7×
+ */
+function calculateRetirementScore(state: OnboardingState): {
+  score: number;
+  retirementContributionRate?: number;
+} {
+  const grossIncome = state.income.monthlyGrossIncome ?? state.income.monthlyNetIncome ?? 0;
+  const retirementContribution = state.savings.monthlyRetirementContribution ?? 0;
+  const retirementSavingsTotal = state.savings.retirementSavingsTotal ?? 0;
+  const age = state.about.age ?? 0;
+
+  const retirementContributionRate = safeDivide(retirementContribution, grossIncome);
+  const rate = retirementContributionRate ?? 0;
+
+  let contributionScore = 0;
+  if (rate >= 0.15) contributionScore = 10;
+  else if (rate >= 0.10) contributionScore = 7;
+  else if (rate >= 0.05) contributionScore = 4;
+  else if (rate > 0) contributionScore = 2;
+
+  let progressScore = 0;
+  const annualIncome = grossIncome * 12;
+
+  if (!age || !annualIncome) {
+    progressScore = 3; // insufficient data — neutral
+  } else {
+    const multiple = retirementSavingsTotal / annualIncome;
+    if (age < 30) {
+      progressScore = multiple >= 1 ? 10 : multiple >= 0.5 ? 6 : multiple > 0 ? 3 : 0;
+    } else if (age < 40) {
+      progressScore = multiple >= 2 ? 10 : multiple >= 1 ? 6 : multiple > 0 ? 3 : 0;
+    } else if (age < 50) {
+      progressScore = multiple >= 4 ? 10 : multiple >= 2 ? 6 : multiple > 0 ? 3 : 0;
+    } else if (age < 60) {
+      progressScore = multiple >= 6 ? 10 : multiple >= 3 ? 6 : multiple > 0 ? 3 : 0;
+    } else {
+      progressScore = multiple >= 7 ? 10 : multiple >= 4 ? 6 : multiple > 0 ? 3 : 0;
+    }
+  }
+
+  return {
+    score: clamp(contributionScore + progressScore, 0, 20),
+    retirementContributionRate,
+  };
+}
+
+// ── Priority actions ──────────────────────────────────────────────────────────
+
+function buildPriorityActions(
+  scores: {
     cashFlow: number;
     debt: number;
-    emergencyFund: number;
+    emergency: number;
     protection: number;
     retirement: number;
-  };
-  priorityActions: string[];
-  summary: string;
+  },
+  state: OnboardingState,
+): string[] {
+  const actions: string[] = [];
+
+  if (scores.retirement <= 12) {
+    actions.push("Increase retirement savings and review your long-term plan.");
+  }
+  if (scores.emergency <= 10) {
+    actions.push("Build emergency savings to at least 3 months of essential expenses.");
+  }
+  if (scores.debt <= 10) {
+    actions.push("Reduce expensive debt and improve monthly cash flow resilience.");
+  }
+  if (scores.protection <= 12) {
+    actions.push("Review your family protection, funeral cover, and risk benefits.");
+  }
+  if (
+    state.protectionEstate.hasWill === false ||
+    state.protectionEstate.beneficiaryNominationsUpdated !== "yes"
+  ) {
+    actions.push("Put a valid will in place and review beneficiary nominations.");
+  }
+  if (scores.cashFlow <= 10) {
+    actions.push("Improve your monthly savings rate and reduce financial pressure at month end.");
+  }
+
+  return actions.slice(0, 3);
 }
+
+// ── Summary ───────────────────────────────────────────────────────────────────
+
+function buildSummary(band: FinancialHealthBand, topAction: string): string {
+  switch (band) {
+    case "strong":
+      return "You have a strong financial foundation. Focus on refining and maintaining your long-term plan.";
+    case "good_foundation":
+      return "You have a good financial base, with a few areas that could be strengthened further.";
+    case "needs_attention":
+      return `Your finances show a reasonable base, but some important areas need attention. ${topAction}`.trim();
+    case "financial_stress_risk":
+      return `Your finances may be under strain in some areas. ${topAction}`.trim();
+    case "urgent_action_needed":
+      return `Several parts of your financial position need urgent attention. ${topAction}`.trim();
+  }
+}
+
+// ── Public API ────────────────────────────────────────────────────────────────
 
 /**
  * calculateHealthScore
  *
  * Scores the client's financial health across 5 categories (each 0–20, total 100).
- * Based on the data captured during onboarding.
+ * Designed for the onboarding wizard — uses simplified self-reported inputs.
  *
- * This is the onboarding-stage calculator — it uses simplified inputs.
- * The full Financial Health Score engine will use the complete ClientProfile.
+ * The full Financial Health Score engine (built on complete ClientProfile data)
+ * will supersede this when the adviser platform is live.
  */
-export function calculateHealthScore(state: OnboardingState): HealthScoreResult {
-  const { income, spending, savings, protectionEstate, family } = state;
+export function calculateHealthScore(state: OnboardingState): FinancialHealthScoreResult {
+  const cashFlow = calculateCashFlowScore(state);
+  const debt = calculateDebtScore(state);
+  const emergency = calculateEmergencyFundScore(state);
+  const protection = calculateProtectionScore(state);
+  const retirement = calculateRetirementScore(state);
 
-  const netIncome = income.monthlyNetIncome ?? 0;
-  const essential = spending.monthlyEssentialExpenses ?? 0;
-  const lifestyle = spending.monthlyLifestyleExpenses ?? 0;
-  const debtRepayments = spending.monthlyDebtRepayments ?? 0;
-  const monthlySavings = savings.monthlySavings ?? 0;
-  const retirementContribution = savings.monthlyRetirementContribution ?? 0;
-  const emergencyFund = savings.emergencySavingsAmount ?? 0;
-  const retirementTotal = savings.retirementSavingsTotal ?? 0;
-  const age = state.about.age ?? 35;
+  const overallScore = clamp(
+    Math.round(cashFlow.score + debt.score + emergency.score + protection.score + retirement.score),
+    0,
+    100,
+  );
 
-  // ── 1. CASH FLOW score (0–20) ──────────────────────────────────────────
-  let cashFlowScore = 0;
-  const priorityActions: string[] = [];
+  const band = getBand(overallScore);
 
-  if (netIncome > 0) {
-    const totalOut = essential + lifestyle + debtRepayments + monthlySavings + retirementContribution;
-    const disposable = netIncome - totalOut;
-    const disposableRatio = disposable / netIncome;
-
-    if (disposableRatio >= 0.15) cashFlowScore = 20;
-    else if (disposableRatio >= 0.05) cashFlowScore = 15;
-    else if (disposableRatio >= 0) cashFlowScore = 10;
-    else cashFlowScore = 3;
-
-    if (disposableRatio < 0.05) {
-      priorityActions.push("Your monthly cash flow is very tight — review essential vs lifestyle spending");
-    }
-  } else {
-    cashFlowScore = 0;
-    priorityActions.push("No income data captured — please complete your income details");
-  }
-
-  // ── 2. DEBT score (0–20) ───────────────────────────────────────────────
-  let debtScore = 0;
-
-  if (netIncome > 0 && debtRepayments >= 0) {
-    const debtRatio = debtRepayments / netIncome;
-
-    if (debtRatio === 0) debtScore = 20;
-    else if (debtRatio <= 0.15) debtScore = 17;
-    else if (debtRatio <= 0.25) debtScore = 13;
-    else if (debtRatio <= 0.35) debtScore = 8;
-    else debtScore = 3;
-
-    if (debtRatio > 0.30) {
-      priorityActions.push(`High debt load: ${Math.round(debtRatio * 100)}% of income goes to debt repayments`);
-    }
-  } else {
-    debtScore = 10; // Unknown — neutral
-  }
-
-  // ── 3. EMERGENCY FUND score (0–20) ────────────────────────────────────
-  let emergencyScore = 0;
-
-  if (emergencyFund > 0 && essential > 0) {
-    const monthsCovered = emergencyFund / essential;
-
-    if (monthsCovered >= 6) emergencyScore = 20;
-    else if (monthsCovered >= 3) emergencyScore = 14;
-    else if (monthsCovered >= 1) emergencyScore = 8;
-    else emergencyScore = 3;
-
-    if (monthsCovered < 3) {
-      priorityActions.push(
-        `Emergency fund covers only ${monthsCovered.toFixed(1)} months — target 6 months of essential expenses`
-      );
-    }
-  } else if (emergencyFund === 0) {
-    emergencyScore = 0;
-    priorityActions.push("No emergency fund — this is your most urgent financial priority");
-  } else {
-    emergencyScore = 5;
-  }
-
-  // ── 4. PROTECTION score (0–20) ────────────────────────────────────────
-  let protectionScore = 0;
-  const totalDependants =
-    (family.numberOfChildren ?? 0) +
-    (family.parentsSupported ?? 0) +
-    (family.hasSpouseOrPartner ? 1 : 0);
-
-  if (protectionEstate.hasLifeCover) protectionScore += 6;
-  if (protectionEstate.hasFuneralCover) protectionScore += 5;
-  if (protectionEstate.hasDisabilityOrIncomeProtection) protectionScore += 5;
-  if (protectionEstate.hasMedicalAid) protectionScore += 4;
-
-  protectionScore = Math.min(20, protectionScore);
-
-  if (!protectionEstate.hasFuneralCover) {
-    priorityActions.push("No funeral cover — this is an affordable and immediate need");
-  }
-  if (!protectionEstate.hasLifeCover && totalDependants > 0) {
-    priorityActions.push("No life cover with dependants — significant financial risk");
-  }
-  if (!protectionEstate.hasMedicalAid) {
-    priorityActions.push("No medical aid — consider at minimum a hospital plan");
-  }
-
-  // ── 5. RETIREMENT score (0–20) ────────────────────────────────────────
-  let retirementScore = 0;
-
-  if (netIncome > 0) {
-    const retirementRate = retirementContribution / netIncome;
-
-    // Benchmark: retirement savings should be ~10x annual income by age 65
-    // Rule of thumb: savings_multiple = retirementTotal / (netIncome * 12)
-    const savingsMultiple = netIncome > 0 ? retirementTotal / (netIncome * 12) : 0;
-
-    // Age-adjusted target multiple (rough benchmark)
-    const targetMultiple = Math.max(0, (age - 22) / (65 - 22)) * 10;
-
-    const onTrackRatio = targetMultiple > 0 ? savingsMultiple / targetMultiple : 0;
-
-    if (retirementRate >= 0.15 && onTrackRatio >= 0.9) retirementScore = 20;
-    else if (retirementRate >= 0.10 && onTrackRatio >= 0.7) retirementScore = 16;
-    else if (retirementRate >= 0.075 && onTrackRatio >= 0.5) retirementScore = 12;
-    else if (retirementRate >= 0.05 || onTrackRatio >= 0.3) retirementScore = 7;
-    else retirementScore = 3;
-
-    if (onTrackRatio < 0.7) {
-      priorityActions.push("Retirement savings are behind — use the Retirement Architect to close the gap");
-    }
-  } else {
-    retirementScore = 5;
-  }
-
-  if (!protectionEstate.hasWill) {
-    priorityActions.push("No will in place — critical if you have dependants");
-  }
-
-  // ── Overall score ──────────────────────────────────────────────────────
-  const overallScore = cashFlowScore + debtScore + emergencyScore + protectionScore + retirementScore;
-
-  // ── Band ───────────────────────────────────────────────────────────────
-  let band: HealthScoreBand;
-  if (overallScore >= 80) band = "strong";
-  else if (overallScore >= 65) band = "good_foundation";
-  else if (overallScore >= 50) band = "needs_attention";
-  else if (overallScore >= 35) band = "financial_stress_risk";
-  else band = "urgent_action_needed";
-
-  // ── Summary ────────────────────────────────────────────────────────────
-  const summaryMap: Record<HealthScoreBand, string> = {
-    strong: "Your finances are in strong shape. Focus on optimising and protecting what you've built.",
-    good_foundation:
-      "You have a good foundation. A few targeted improvements will significantly strengthen your position.",
-    needs_attention:
-      "There are some important gaps in your financial plan. The tools below will help you address them.",
-    financial_stress_risk:
-      "Your financial situation has some stress points that need attention soon. Start with the highest priorities below.",
-    urgent_action_needed:
-      "Some urgent financial gaps need immediate attention. We recommend speaking to an advisor.",
-  };
+  const priorityActions = buildPriorityActions(
+    {
+      cashFlow: cashFlow.score,
+      debt: debt.score,
+      emergency: emergency.score,
+      protection: protection.score,
+      retirement: retirement.score,
+    },
+    state,
+  );
 
   return {
+    calculatedAt: new Date().toISOString(),
     overallScore,
     band,
     categoryScores: {
-      cashFlow: cashFlowScore,
-      debt: debtScore,
-      emergencyFund: emergencyScore,
-      protection: protectionScore,
-      retirement: retirementScore,
+      cashFlow: cashFlow.score,
+      debt: debt.score,
+      emergencyFund: emergency.score,
+      protection: protection.score,
+      retirement: retirement.score,
     },
-    priorityActions: priorityActions.slice(0, 5), // top 5 only
-    summary: summaryMap[band],
+    priorityActions,
+    summary: buildSummary(band, priorityActions[0] ?? ""),
+    breakdown: {
+      savingsRate: cashFlow.savingsRate,
+      debtToIncomeRatio: debt.debtToIncomeRatio,
+      emergencyMonths: emergency.emergencyMonths,
+      retirementContributionRate: retirement.retirementContributionRate,
+    },
   };
 }
+
+// Re-export types for convenience
+export type { FinancialHealthScoreResult, FinancialHealthBand } from "../types/financial-health.types";

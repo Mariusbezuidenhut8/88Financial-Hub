@@ -1,3 +1,5 @@
+import type { FinancialHealthScoreResult } from "./financial-health.types";
+
 /**
  * OnboardingState — the lightweight data model used during the onboarding wizard.
  *
@@ -180,18 +182,7 @@ export interface OnboardingState {
   priorities: PrioritiesState;
 
   /** Set after results step — never populated during data entry */
-  healthScore?: {
-    overallScore: number;
-    band: "strong" | "good_foundation" | "needs_attention" | "financial_stress_risk" | "urgent_action_needed";
-    categoryScores: {
-      cashFlow: number;
-      debt: number;
-      emergencyFund: number;
-      protection: number;
-      retirement: number;
-    };
-    priorityActions: string[];
-  };
+  healthScore?: FinancialHealthScoreResult;
 
   /** Set after routing logic runs */
   recommendedTools?: RecommendedTool[];

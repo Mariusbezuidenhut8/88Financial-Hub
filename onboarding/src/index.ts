@@ -1,12 +1,13 @@
 // Types
 export * from "./types/onboarding-state.types";
 export * from "./types/onboarding-steps.types";
+export * from "./types/financial-health.types";
+export * from "./types/onboarding-results.types";
 
 // Services
 export { mapOnboardingToClientProfile, deriveAgeFromIdNumber, deriveDateOfBirthFromIdNumber } from "./services/onboarding-mapper";
 export { calculateHealthScore } from "./services/health-score-calculator";
-export type { HealthScoreResult } from "./services/health-score-calculator";
-export { recommendTools } from "./services/recommendation-router";
+export { recommendTools, getOnboardingRouteResult } from "./services/recommendation-router";
 
 // Components (React)
 export { default as OnboardingWizard } from "./components/OnboardingWizard";

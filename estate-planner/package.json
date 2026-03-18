@@ -1,0 +1,18 @@
+{
+  "name": "@88fh/estate-planner",
+  "version": "0.1.0",
+  "description": "Estate Planner — estate analysis engine, liquidity shortfall calculator, and readiness assessment",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@88fh/master-data-model": "*",
+    "react": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "typescript": "^5.0.0"
+  }
+}

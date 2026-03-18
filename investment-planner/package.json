@@ -1,0 +1,18 @@
+{
+  "name": "@88fh/investment-planner",
+  "version": "0.1.0",
+  "description": "Investment Planner / Wrapper Decision Engine — goal-based wrapper selection and strategy direction",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@88fh/master-data-model": "*",
+    "react": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "typescript": "^5.0.0"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "@88fh/retirement-planner",
+  "version": "0.1.0",
+  "description": "Retirement Planner module — projection engine and wizard UI",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@88fh/master-data-model": "*",
+    "react": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "typescript": "^5.0.0"
+  }
+}

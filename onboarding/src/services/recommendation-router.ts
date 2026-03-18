@@ -1,20 +1,20 @@
 import { OnboardingState, RecommendedTool } from "../types/onboarding-state.types";
-import { HealthScoreResult } from "./health-score-calculator";
+import type { FinancialHealthScoreResult } from "../types/financial-health.types";
+import type { OnboardingRouteResult, NextStepRecommendation } from "../types/onboarding-results.types";
 
 /**
  * recommendation-router.ts
  *
- * After the health score is calculated, determine which tools to recommend
- * and in what order. Returns an ordered list of RecommendedTool objects.
- *
- * Logic: score-based + gap-based + priority-based
+ * Public API:
+ *   recommendTools()           → RecommendedTool[]    (simple list, for backward compat)
+ *   getOnboardingRouteResult() → OnboardingRouteResult (full result for the Results screen)
  */
-export function recommendTools(
+function buildToolRecommendations(
   state: OnboardingState,
-  score: HealthScoreResult
+  score: FinancialHealthScoreResult,
 ): RecommendedTool[] {
   const recommendations: RecommendedTool[] = [];
-  const { protectionEstate, savings, family, spending, priorities } = state;
+  const { protectionEstate, family, priorities } = state;
 
   const userPriorities = new Set(priorities.selectedPriorities ?? []);
   const totalDependants =
@@ -115,12 +115,108 @@ export function recommendTools(
     });
   }
 
-  // Sort: urgent first, then by priority, then deduplicate
   recommendations.sort((a, b) => {
     if (a.isUrgent !== b.isUrgent) return a.isUrgent ? -1 : 1;
     return a.priority - b.priority;
   });
 
-  // Return top 3
   return recommendations.slice(0, 3);
+}
+
+// ── Advisor signal ────────────────────────────────────────────────────────────
+
+/**
+ * Advisor help is recommended when the combination of gaps is complex enough
+ * that a human conversation adds more value than self-service tools.
+ *
+ * Triggers when ANY of:
+ *   - overall score < 35  (urgent_action_needed band)
+ *   - 2+ recommended tools are flagged isUrgent
+ *   - user's helpTiming is "ready_now" AND score < 50
+ */
+function shouldRecommendAdvisor(
+  state: OnboardingState,
+  score: FinancialHealthScoreResult,
+  tools: RecommendedTool[],
+): boolean {
+  if (score.overallScore < 35) return true;
+  if (tools.filter((t) => t.isUrgent).length >= 2) return true;
+  if (state.priorities.helpTiming === "ready_now" && score.overallScore < 50) return true;
+  return false;
+}
+
+// ── Internal mapping ──────────────────────────────────────────────────────────
+
+const TOOL_KEYS: Record<RecommendedTool["toolId"], string> = {
+  funeral_cover_studio: "funeral",
+  retirement_architect: "retirement",
+  protection_planner:   "protection",
+  estate_architect:     "estate",
+  investment_planner:   "investment",
+};
+
+function toNextStep(tool: RecommendedTool): NextStepRecommendation {
+  return {
+    key:      TOOL_KEYS[tool.toolId],
+    title:    tool.label,
+    reason:   tool.reason,
+    priority: tool.priority,
+  };
+}
+
+function deriveComplexityReasons(
+  state: OnboardingState,
+  score: FinancialHealthScoreResult,
+  tools: RecommendedTool[],
+): string[] {
+  const reasons: string[] = [];
+  if (score.overallScore < 35) {
+    reasons.push("Your overall financial position needs urgent attention.");
+  }
+  const urgentTools = tools.filter((t) => t.isUrgent);
+  for (const t of urgentTools) {
+    reasons.push(t.reason);
+  }
+  if (state.priorities.helpTiming === "ready_now" && score.overallScore < 50) {
+    reasons.push("You indicated you're ready to take action now.");
+  }
+  return reasons;
+}
+
+// ── Public API ────────────────────────────────────────────────────────────────
+
+/**
+ * recommendTools — returns the ordered tool list only.
+ * Kept for direct use when the full OnboardingRouteResult is not needed.
+ */
+export function recommendTools(
+  state: OnboardingState,
+  score: FinancialHealthScoreResult,
+): RecommendedTool[] {
+  return buildToolRecommendations(state, score);
+}
+
+/**
+ * getOnboardingRouteResult — primary route API for the Results screen.
+ *
+ * Returns OnboardingRouteResult including:
+ *   - ordered display-ready tool recommendations (NextStepRecommendation[])
+ *   - advisor signal (shouldSuggestAdvisor)
+ *   - complexity reasons driving the advisor signal (complexityReasons)
+ */
+export function getOnboardingRouteResult(
+  state: OnboardingState,
+  score: FinancialHealthScoreResult,
+): OnboardingRouteResult {
+  const tools = buildToolRecommendations(state, score);
+  const shouldSuggestAdvisor = shouldRecommendAdvisor(state, score, tools);
+  const complexityReasons = shouldSuggestAdvisor
+    ? deriveComplexityReasons(state, score, tools)
+    : [];
+
+  return {
+    recommendedTools: tools.map(toNextStep),
+    shouldSuggestAdvisor,
+    complexityReasons,
+  };
 }
