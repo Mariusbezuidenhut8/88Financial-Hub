@@ -1,6 +1,3 @@
 [build]
   command = "npm install && cd host-app && npm install && npm run build"
   publish = "host-app/.next"
-
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
