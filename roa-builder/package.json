@@ -1,0 +1,20 @@
+{
+  "name": "@88fh/roa-builder",
+  "version": "0.1.0",
+  "description": "Record of Advice builder — FAIS-compliant ROA document generator for Fairbairn Consult advisers",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@88fh/master-data-model":      "*",
+    "@88fh/financial-health-score": "*",
+    "react":                        "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "typescript":   "^5.0.0"
+  }
+}

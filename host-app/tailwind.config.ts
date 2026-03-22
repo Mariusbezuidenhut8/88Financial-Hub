@@ -13,6 +13,7 @@ const config: Config = {
     "../financial-health-score/src/**/*.{ts,tsx}",
     "../adviser-dashboard/src/**/*.{ts,tsx}",
     "../dashboard/src/**/*.{ts,tsx}",
+    "../roa-builder/src/**/*.{ts,tsx}",
   ],
   theme: {
     extend: {},

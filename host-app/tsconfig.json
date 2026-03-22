@@ -22,7 +22,8 @@
       "@88fh/investment-planner":     ["../investment-planner/src/index.ts"],
       "@88fh/financial-health-score": ["../financial-health-score/src/index.ts"],
       "@88fh/adviser-dashboard":      ["../adviser-dashboard/src/index.ts"],
-      "@88fh/dashboard":              ["../dashboard/src/index.ts"]
+      "@88fh/dashboard":              ["../dashboard/src/index.ts"],
+      "@88fh/roa-builder":            ["../roa-builder/src/index.ts"]
     }
   },
   "include":  ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

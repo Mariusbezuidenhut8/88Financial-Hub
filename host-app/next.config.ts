@@ -16,6 +16,7 @@ const nextConfig: NextConfig = {
     "@88fh/financial-health-score",
     "@88fh/adviser-dashboard",
     "@88fh/dashboard",
+    "@88fh/roa-builder",
   ],
 };
 
