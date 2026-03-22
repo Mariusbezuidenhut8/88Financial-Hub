@@ -41,13 +41,14 @@ export default function FamilyStep({ data, onChange, onNext, onBack }: FamilySte
           {MARITAL_OPTIONS.map((opt) => (
             <button
               key={opt.value}
-              onClick={() => {
-                update("maritalStatus", opt.value);
-                update(
-                  "hasSpouseOrPartner",
-                  opt.value === "married" || opt.value === "life_partner"
-                );
-              }}
+              onClick={() =>
+                onChange({
+                  ...data,
+                  maritalStatus: opt.value,
+                  hasSpouseOrPartner:
+                    opt.value === "married" || opt.value === "life_partner",
+                })
+              }
               className={`py-3 px-3 rounded-xl border-2 text-sm font-medium transition-colors ${
                 data.maritalStatus === opt.value
                   ? "border-blue-600 bg-blue-50 text-blue-700"
@@ -69,10 +70,13 @@ export default function FamilyStep({ data, onChange, onNext, onBack }: FamilySte
           {[0, 1, 2, 3, 4, 5].map((n) => (
             <button
               key={n}
-              onClick={() => {
-                update("numberOfChildren", n);
-                if (n === 0) update("hasMinorChildren", false);
-              }}
+              onClick={() =>
+                onChange({
+                  ...data,
+                  numberOfChildren: n,
+                  ...(n === 0 ? { hasMinorChildren: false } : {}),
+                })
+              }
               className={`w-12 h-12 rounded-xl border-2 font-medium transition-colors ${
                 data.numberOfChildren === n
                   ? "border-blue-600 bg-blue-50 text-blue-700"
