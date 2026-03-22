@@ -1,5 +1,5 @@
 [build]
-  command = "cd host-app && npm install && npm run build"
+  command = "npm install && cd host-app && npm install && npm run build"
   publish = "host-app/.next"
 
 [[plugins]]
