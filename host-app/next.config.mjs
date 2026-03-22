@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: "export",
   transpilePackages: [
     "@88fh/master-data-model",
     "@88fh/onboarding",
