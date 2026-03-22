@@ -2,10 +2,10 @@ import React, { useMemo, useState, useCallback } from "react";
 import type { PlatformRecord } from "@88fh/master-data-model";
 import type {
   ProtectionPlannerState,
-  ProtectionLifeStep,
-  ProtectionIncomeStep,
-  ProtectionDreadStep,
-  ProtectionDebtStep,
+  ProtectionLifeStep as ProtectionLifeStepState,
+  ProtectionIncomeStep as ProtectionIncomeStepState,
+  ProtectionDreadStep as ProtectionDreadStepState,
+  ProtectionDebtStep as ProtectionDebtStepState,
   ProtectionPlannerResult,
 } from "../../types/protectionPlanner.types";
 import {
@@ -63,16 +63,16 @@ export function ProtectionPlannerWizard({
   // ── Navigation ─────────────────────────────────────────────────────────────
 
   const goNext = useCallback(() => {
-    setCompletedKeys((prev) =>
+    setCompletedKeys((prev: ProtectionPlannerStepKey[]) =>
       prev.includes(currentStepKey) ? prev : [...prev, currentStepKey],
     );
-    setCurrentStepIndex((i) =>
+    setCurrentStepIndex((i: number) =>
       Math.min(i + 1, protectionPlannerSteps.length - 1),
     );
   }, [currentStepKey]);
 
   const goBack = useCallback(() => {
-    setCurrentStepIndex((i) => Math.max(i - 1, 0));
+    setCurrentStepIndex((i: number) => Math.max(i - 1, 0));
   }, []);
 
   const goToKey = useCallback((key: ProtectionPlannerStepKey) => {
@@ -83,22 +83,22 @@ export function ProtectionPlannerWizard({
   // ── State updaters ─────────────────────────────────────────────────────────
 
   const updateLife = useCallback(
-    (life: ProtectionLifeStep) => setState((prev) => ({ ...prev, life })),
+    (life: ProtectionLifeStepState) => setState((prev: ProtectionPlannerState) => ({ ...prev, life })),
     [],
   );
 
   const updateIncome = useCallback(
-    (income: ProtectionIncomeStep) => setState((prev) => ({ ...prev, income })),
+    (income: ProtectionIncomeStepState) => setState((prev: ProtectionPlannerState) => ({ ...prev, income })),
     [],
   );
 
   const updateDread = useCallback(
-    (dread: ProtectionDreadStep) => setState((prev) => ({ ...prev, dread })),
+    (dread: ProtectionDreadStepState) => setState((prev: ProtectionPlannerState) => ({ ...prev, dread })),
     [],
   );
 
   const updateDebt = useCallback(
-    (debt: ProtectionDebtStep) => setState((prev) => ({ ...prev, debt })),
+    (debt: ProtectionDebtStepState) => setState((prev: ProtectionPlannerState) => ({ ...prev, debt })),
     [],
   );
 
@@ -110,7 +110,7 @@ export function ProtectionPlannerWizard({
    * the latest debt step state is captured without stale closure.
    */
   const handleDebtContinue = useCallback(() => {
-    setState((prev) => {
+    setState((prev: ProtectionPlannerState) => {
       const input  = toAnalysisInput(prev, clientProfile);
       const result = runProtectionEngine(input);
       onComplete?.(result);

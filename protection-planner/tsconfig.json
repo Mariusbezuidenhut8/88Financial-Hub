@@ -9,11 +9,6 @@
     "noUncheckedIndexedAccess": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "outDir": "dist",
-    "rootDir": "src",
     "paths": {
       "@88fh/master-data-model": ["../master-data-model/src/index.ts"]
     }

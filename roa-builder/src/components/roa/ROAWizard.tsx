@@ -36,17 +36,17 @@ export function ROAWizard({ record, onComplete, onBackToDashboard }: ROAWizardPr
 
   const onChange = useCallback(
     <K extends keyof ROAState>(key: K, value: ROAState[K]) => {
-      setState((prev) => ({ ...prev, [key]: value }));
+      setState((prev: ROAState) => ({ ...prev, [key]: value }));
     },
     [],
   );
 
-  function goNext() { setStepIndex((i) => Math.min(i + 1, roaSteps.length - 1)); }
-  function goBack() { setStepIndex((i) => Math.max(i - 1, 0)); }
+  function goNext() { setStepIndex((i: number) => Math.min(i + 1, roaSteps.length - 1)); }
+  function goBack() { setStepIndex((i: number) => Math.max(i - 1, 0)); }
 
   function handleFinish() {
     const completedAt = new Date().toISOString();
-    setState((prev) => {
+    setState((prev: ROAState) => {
       const finalState: ROAState = {
         ...prev,
         status:      "complete",

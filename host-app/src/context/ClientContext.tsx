@@ -92,7 +92,7 @@ export function ClientProvider({ children }: { children: ReactNode }) {
 
   const updateProfile = useCallback(
     (profile: PlatformRecord["clientProfile"]) => {
-      setRecord((prev) => ({
+      setRecord((prev: PlatformRecord) => ({
         ...prev,
         clientProfile: profile,
         audit: {

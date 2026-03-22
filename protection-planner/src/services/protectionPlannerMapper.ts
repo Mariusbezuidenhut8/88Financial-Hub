@@ -273,15 +273,3 @@ export function runProtectionEngine(
     ...output,
   };
 }
-
-// ── Helper ─────────────────────────────────────────────────────────────────
-
-function sumLiabilityTypes(
-  liabilities: ClientProfile["liabilities"],
-  types: string[],
-): number {
-  const typeSet = new Set(types);
-  return liabilities
-    .filter((l) => typeSet.has(l.liabilityType))
-    .reduce((sum, l) => sum + (l.outstandingBalance ?? 0), 0);
-}

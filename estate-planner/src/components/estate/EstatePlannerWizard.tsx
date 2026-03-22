@@ -63,16 +63,16 @@ export function EstatePlannerWizard({
   // ── Navigation ────────────────────────────────────────────────────────────
 
   const goNext = useCallback(() => {
-    setCompletedKeys((prev) =>
+    setCompletedKeys((prev: EstatePlannerStepKey[]) =>
       prev.includes(currentStepKey) ? prev : [...prev, currentStepKey],
     );
-    setCurrentStepIndex((i) =>
+    setCurrentStepIndex((i: number) =>
       Math.min(i + 1, estatePlannerSteps.length - 1),
     );
   }, [currentStepKey]);
 
   const goBack = useCallback(() => {
-    setCurrentStepIndex((i) => Math.max(i - 1, 0));
+    setCurrentStepIndex((i: number) => Math.max(i - 1, 0));
   }, []);
 
   const goToKey = useCallback((key: EstatePlannerStepKey) => {
@@ -84,25 +84,25 @@ export function EstatePlannerWizard({
 
   const updateFamily = useCallback(
     (family: EstatePlannerFamilyStep) =>
-      setState((prev) => ({ ...prev, family })),
+      setState((prev: EstatePlannerState) => ({ ...prev, family })),
     [],
   );
 
   const updateEstate = useCallback(
     (estate: EstatePlannerEstateStep) =>
-      setState((prev) => ({ ...prev, estate })),
+      setState((prev: EstatePlannerState) => ({ ...prev, estate })),
     [],
   );
 
   const updateLiquidity = useCallback(
     (liquidity: EstatePlannerLiquidityStep) =>
-      setState((prev) => ({ ...prev, liquidity })),
+      setState((prev: EstatePlannerState) => ({ ...prev, liquidity })),
     [],
   );
 
   const updateReview = useCallback(
     (review: EstatePlannerReviewStep) =>
-      setState((prev) => ({ ...prev, review })),
+      setState((prev: EstatePlannerState) => ({ ...prev, review })),
     [],
   );
 
@@ -114,7 +114,7 @@ export function EstatePlannerWizard({
    * (including any review updates) is used, avoiding stale closure issues.
    */
   const handleReviewContinue = useCallback(() => {
-    setState((prev) => {
+    setState((prev: EstatePlannerState) => {
       const input  = toAnalysisInput(prev, clientProfile);
       const result = runAnalysisEngine(input);
       onComplete?.(result);

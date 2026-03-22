@@ -58,14 +58,14 @@ export function RetirementPlannerWizard({
   // ── Navigation ────────────────────────────────────────────────────────
 
   const goNext = useCallback(() => {
-    setCompletedIds((prev) =>
+    setCompletedIds((prev: RetirementPlannerStepId[]) =>
       prev.includes(currentStepId) ? prev : [...prev, currentStepId],
     );
-    setCurrentStepIndex((i) => Math.min(i + 1, totalSteps - 1));
+    setCurrentStepIndex((i: number) => Math.min(i + 1, totalSteps - 1));
   }, [currentStepId, totalSteps]);
 
   const goBack = useCallback(() => {
-    setCurrentStepIndex((i) => Math.max(i - 1, 0));
+    setCurrentStepIndex((i: number) => Math.max(i - 1, 0));
   }, []);
 
   const goToStepId = useCallback(
@@ -79,17 +79,17 @@ export function RetirementPlannerWizard({
   // ── State updaters ────────────────────────────────────────────────────
 
   const updateGoals = useCallback(
-    (goals: RetirementPlannerGoals) => setState((prev) => ({ ...prev, goals })),
+    (goals: RetirementPlannerGoals) => setState((prev: RetirementPlannerState) => ({ ...prev, goals })),
     [],
   );
 
   const updatePosition = useCallback(
-    (position: RetirementPlannerPosition) => setState((prev) => ({ ...prev, position })),
+    (position: RetirementPlannerPosition) => setState((prev: RetirementPlannerState) => ({ ...prev, position })),
     [],
   );
 
   const updateAssumptions = useCallback(
-    (assumptions: RetirementPlannerAssumptions) => setState((prev) => ({ ...prev, assumptions })),
+    (assumptions: RetirementPlannerAssumptions) => setState((prev: RetirementPlannerState) => ({ ...prev, assumptions })),
     [],
   );
 
@@ -103,7 +103,7 @@ export function RetirementPlannerWizard({
       return;
     }
     const result = runFullProjection(input);
-    setState((prev) => ({ ...prev, result }));
+    setState((prev: RetirementPlannerState) => ({ ...prev, result }));
     onComplete?.(result);
     goNext();
   }, [state, onComplete, goNext]);

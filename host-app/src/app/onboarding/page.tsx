@@ -9,7 +9,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import OnboardingWizard from "@88fh/onboarding";
+import { OnboardingWizard } from "@88fh/onboarding";
 import { useClient } from "@/context/ClientContext";
 import type { PlatformRecord } from "@88fh/master-data-model";
 
@@ -20,7 +20,7 @@ export default function OnboardingPage() {
   const { updateProfile } = useClient();
 
   function handleComplete(profile: Record<string, unknown>) {
-    updateProfile(profile as ClientProfile);
+    updateProfile(profile as unknown as ClientProfile);
     router.push("/adviser");
   }
 

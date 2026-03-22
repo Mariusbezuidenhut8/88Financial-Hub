@@ -15,9 +15,10 @@ const READINESS_CONFIG: Record<
   RetirementReadinessStatus,
   { label: string; bg: string; text: string }
 > = {
-  ahead:    { label: "On track — surplus",   bg: "bg-emerald-900", text: "text-emerald-200" },
-  on_track: { label: "Broadly on track",     bg: "bg-slate-900",   text: "text-slate-200"  },
-  behind:   { label: "Behind — gap to close",bg: "bg-orange-900",  text: "text-orange-200" },
+  ahead:    { label: "On track — surplus",    bg: "bg-emerald-900", text: "text-emerald-200" },
+  on_track: { label: "Broadly on track",      bg: "bg-slate-900",   text: "text-slate-200"  },
+  behind:   { label: "Behind — gap to close", bg: "bg-orange-900",  text: "text-orange-200" },
+  unknown:  { label: "Projection incomplete", bg: "bg-slate-700",   text: "text-slate-300"  },
 };
 
 function currency(value: number): string {
@@ -31,8 +32,8 @@ export default function RetirementResultsStep({
   onRequestAdvisor,
 }: RetirementResultsStepProps) {
   const config = READINESS_CONFIG[result.readinessStatus];
-  const hasSurplus = result.monthlyIncomeGapReal <= 0;
-  const surplusOrGap = Math.abs(result.monthlyIncomeGapReal);
+  const hasSurplus = result.monthlyIncomeGap <= 0;
+  const surplusOrGap = Math.abs(result.monthlyIncomeGap);
 
   return (
     <div className="space-y-6">
@@ -50,7 +51,7 @@ export default function RetirementResultsStep({
           <div>
             <p className={`text-xs font-medium ${config.text}`}>Projected monthly income</p>
             <p className="mt-1 text-2xl font-bold">
-              {currency(result.estimatedMonthlyIncomeReal)}
+              {currency(result.estimatedMonthlyIncome)}
             </p>
             <p className={`text-xs mt-1 ${config.text}`}>in today's money</p>
           </div>
@@ -79,7 +80,7 @@ export default function RetirementResultsStep({
         />
         <StatCard
           label="Years to retirement"
-          value={String(result.yearsToRetirement)}
+          value={String(result.assumptions.planningAge - result.targetRetirementAge)}
         />
         <StatCard
           label="Target retirement age"
@@ -87,7 +88,7 @@ export default function RetirementResultsStep({
         />
         <StatCard
           label="Drawdown rate used"
-          value={`${(result.assumptions.drawdownRate * 100).toFixed(1)}%`}
+          value={`${(result.assumptions.sustainableDrawdownRate * 100).toFixed(1)}%`}
         />
       </div>
 

@@ -1,4 +1,5 @@
 import type { FinancialHealthScoreResult } from "./financial-health.types";
+import type { OnboardingRouteResult } from "./onboarding-results.types";
 
 /**
  * OnboardingState — the lightweight data model used during the onboarding wizard.
@@ -185,6 +186,9 @@ export interface OnboardingState {
   healthScore?: FinancialHealthScoreResult;
 
   /** Set after routing logic runs */
+  routeResult?: OnboardingRouteResult;
+
+  /** @deprecated use routeResult — kept for legacy consumers */
   recommendedTools?: RecommendedTool[];
 
   /** ISO datetime — when onboarding was started */

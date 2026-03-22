@@ -1,31 +1,71 @@
 {
   "compilerOptions": {
-    "target":            "ES2020",
-    "lib":               ["ES2020", "DOM", "DOM.Iterable"],
-    "module":            "ESNext",
-    "moduleResolution":  "bundler",
-    "jsx":               "preserve",
-    "strict":            true,
-    "noEmit":            true,
-    "skipLibCheck":      true,
-    "esModuleInterop":   true,
-    "incremental":       true,
-    "plugins":           [{ "name": "next" }],
-    "baseUrl":           ".",
+    "target": "ES2020",
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "preserve",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "baseUrl": ".",
     "paths": {
-      "@/*":                          ["./src/*"],
-      "@88fh/master-data-model":      ["../master-data-model/src/index.ts"],
-      "@88fh/onboarding":             ["../onboarding/src/index.ts"],
-      "@88fh/retirement-planner":     ["../retirement-planner/src/index.ts"],
-      "@88fh/protection-planner":     ["../protection-planner/src/index.ts"],
-      "@88fh/estate-planner":         ["../estate-planner/src/index.ts"],
-      "@88fh/investment-planner":     ["../investment-planner/src/index.ts"],
-      "@88fh/financial-health-score": ["../financial-health-score/src/index.ts"],
-      "@88fh/adviser-dashboard":      ["../adviser-dashboard/src/index.ts"],
-      "@88fh/dashboard":              ["../dashboard/src/index.ts"],
-      "@88fh/roa-builder":            ["../roa-builder/src/index.ts"]
-    }
+      "@/*": [
+        "./src/*"
+      ],
+      "@88fh/master-data-model": [
+        "../master-data-model/src/index.ts"
+      ],
+      "@88fh/onboarding": [
+        "../onboarding/src/index.ts"
+      ],
+      "@88fh/retirement-planner": [
+        "../retirement-planner/src/index.ts"
+      ],
+      "@88fh/protection-planner": [
+        "../protection-planner/src/index.ts"
+      ],
+      "@88fh/estate-planner": [
+        "../estate-planner/src/index.ts"
+      ],
+      "@88fh/investment-planner": [
+        "../investment-planner/src/index.ts"
+      ],
+      "@88fh/financial-health-score": [
+        "../financial-health-score/src/index.ts"
+      ],
+      "@88fh/adviser-dashboard": [
+        "../adviser-dashboard/src/index.ts"
+      ],
+      "@88fh/dashboard": [
+        "../dashboard/src/index.ts"
+      ],
+      "@88fh/roa-builder": [
+        "../roa-builder/src/index.ts"
+      ]
+    },
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true
   },
-  "include":  ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude":  ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

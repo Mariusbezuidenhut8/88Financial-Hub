@@ -14,9 +14,6 @@ function currency(value: number): string {
   return `R${Math.round(value).toLocaleString("en-ZA")}`;
 }
 
-function pct(value: number): string {
-  return `${Math.round(value * 100)}%`;
-}
 
 export default function RetirementStrategiesStep({
   result,
@@ -24,7 +21,7 @@ export default function RetirementStrategiesStep({
   onBack,
 }: RetirementStrategiesStepProps) {
   const { strategyOptions, desiredMonthlyIncome } = result;
-  const baselineGap = result.monthlyIncomeGapReal;
+  const baselineGap = result.monthlyIncomeGap;
 
   return (
     <div className="space-y-6">
@@ -45,7 +42,7 @@ export default function RetirementStrategiesStep({
             option={strategyOptions.saveMore}
             desiredMonthlyIncome={desiredMonthlyIncome}
             baselineGap={baselineGap}
-            revisedDisplay={currency(strategyOptions.saveMore.revisedValue) + " / month"}
+            revisedDisplay={currency((strategyOptions.saveMore.metadata?.revisedMonthlyContribution as number) ?? 0) + " / month"}
           />
         )}
 
@@ -56,18 +53,18 @@ export default function RetirementStrategiesStep({
             option={strategyOptions.retireLater}
             desiredMonthlyIncome={desiredMonthlyIncome}
             baselineGap={baselineGap}
-            revisedDisplay={`Age ${strategyOptions.retireLater.revisedValue}`}
+            revisedDisplay={`Age ${(strategyOptions.retireLater.metadata?.revisedRetirementAge as number) ?? "—"}`}
           />
         )}
 
-        {strategyOptions.growthFocused && (
+        {strategyOptions.growthOption && (
           <StrategyCard
             label="C — Growth-focused strategy"
             icon="📈"
-            option={strategyOptions.growthFocused}
+            option={strategyOptions.growthOption}
             desiredMonthlyIncome={desiredMonthlyIncome}
             baselineGap={baselineGap}
-            revisedDisplay={pct(strategyOptions.growthFocused.revisedValue) + " growth target"}
+            revisedDisplay={`${((strategyOptions.growthOption.metadata?.revisedGrowthRate as number) ?? 0).toFixed(1)}% growth target`}
           />
         )}
       </div>
@@ -106,10 +103,6 @@ interface StrategyCardProps {
   desiredMonthlyIncome: number;
   baselineGap: number;
   revisedDisplay: string;
-}
-
-function currency(value: number): string {
-  return `R${Math.round(value).toLocaleString("en-ZA")}`;
 }
 
 function StrategyCard({

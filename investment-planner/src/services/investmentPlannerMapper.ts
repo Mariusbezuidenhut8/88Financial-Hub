@@ -43,7 +43,7 @@ function inferTaxBand(monthlyGrossIncome?: number): InvestmentTaxBand {
 
 function mapGoalNames(clientProfile: ClientProfile): string[] {
   return (
-    clientProfile.goals?.goals?.map(
+    clientProfile.goals?.map(
       (g: { goalName?: string; category?: string }) =>
         g.goalName ?? g.category ?? "unnamed goal",
     ) ?? []
@@ -60,17 +60,17 @@ export function mapClientProfileToInvestmentPlanner(
   clientProfile: ClientProfile,
 ): InvestmentPlannerMappingResult {
   const warnings: string[] = [];
-  const { cashFlow, retirement, assets } = clientProfile;
+  const { cashFlow, retirement, assets, employment } = clientProfile;
 
   // ── Monthly savings capacity
   //    Preference order: disposable estimate, net − expenses fallback
-  const monthlyNet      = cashFlow?.monthlyNetIncome   ?? 0;
-  const monthlyExpenses = cashFlow?.monthlyExpenses     ?? 0;
-  const raContrib       = retirement?.monthlyContribution
-                          ?? cashFlow?.monthlyRetirementContribution
+  const monthlyNet      = employment?.monthlyNetIncome   ?? 0;
+  const monthlyExpenses = (cashFlow?.monthlyEssentialExpenses ?? 0) + (cashFlow?.monthlyLifestyleExpenses ?? 0);
+  const raContrib       = retirement?.monthlyRetirementContribution
+                          ?? cashFlow?.monthlyRetirementContributions
                           ?? 0;
   let monthlySavingsCapacity: number | undefined;
-  if (cashFlow?.monthlyNetIncome !== undefined) {
+  if (employment?.monthlyNetIncome !== undefined) {
     monthlySavingsCapacity = Math.max(0, monthlyNet - monthlyExpenses - raContrib);
   } else {
     warnings.push("Monthly income is missing — savings capacity could not be estimated.");
@@ -78,14 +78,16 @@ export function mapClientProfileToInvestmentPlanner(
 
   // ── Current retirement contribution
   const currentRetirementContribution =
-    retirement?.monthlyContribution ?? cashFlow?.monthlyRetirementContribution;
+    retirement?.monthlyRetirementContribution ?? cashFlow?.monthlyRetirementContributions;
   if (!currentRetirementContribution) {
     warnings.push("No retirement contribution found — RA status assumed as none.");
   }
 
   // ── Emergency fund
   //    Best proxy: sum of cash & savings assets
-  const cashAssets = assets?.cashAndSavings ?? [];
+  const cashAssets = assets?.filter((a) =>
+    ["cash", "savings_account", "money_market", "fixed_deposit"].includes(a.assetType),
+  ) ?? [];
   const emergencyFundAmount =
     cashAssets.length > 0
       ? cashAssets.reduce(
@@ -108,12 +110,12 @@ export function mapClientProfileToInvestmentPlanner(
 
   // ── Has existing RA
   const hasExistingRA = Boolean(
-    retirement?.monthlyContribution || cashFlow?.monthlyRetirementContribution,
+    retirement?.monthlyRetirementContribution || cashFlow?.monthlyRetirementContributions,
   );
 
   // ── Tax band
-  const taxBand = inferTaxBand(cashFlow?.monthlyGrossIncome);
-  if (!cashFlow?.monthlyGrossIncome) {
+  const taxBand = inferTaxBand(employment?.monthlyGrossIncome);
+  if (!employment?.monthlyGrossIncome) {
     warnings.push("Gross income missing — tax band defaulted to medium.");
   }
 

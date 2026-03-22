@@ -148,6 +148,8 @@ export interface InvestmentDecisionOutput extends InvestmentPlannerReasonBlock {
 /** Output from the strategy builder */
 export interface InvestmentStrategyOutput {
   strategyDirection: string[];
+  suggestAdvisor:    boolean;
+  advisorReasons:    string[];
 }
 
 // ── 5. Result type ─────────────────────────────────────────────────────────

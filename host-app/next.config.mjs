@@ -1,11 +1,5 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /**
-   * Transpile all local @88fh/* packages.
-   * Because sibling packages use "moduleResolution: bundler" and ship
-   * raw TypeScript source (no dist build step), Next.js must transpile them.
-   */
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   transpilePackages: [
     "@88fh/master-data-model",
     "@88fh/onboarding",

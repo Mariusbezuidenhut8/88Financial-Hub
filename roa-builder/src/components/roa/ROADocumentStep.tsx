@@ -140,7 +140,7 @@ export function ROADocumentStep({ state, profile, record, onNext, onBack }: ROAD
             </div>
             {score.topGaps.length > 0 && (
               <ul className="mt-3 space-y-1">
-                {score.topGaps.map((gap, i) => (
+                {score.topGaps.map((gap: string, i: number) => (
                   <li key={i} className="flex items-start gap-2 text-xs text-slate-600">
                     <span className="mt-1 h-1 w-1 flex-shrink-0 rounded-full bg-slate-400" />
                     {gap}

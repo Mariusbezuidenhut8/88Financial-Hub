@@ -81,7 +81,9 @@ function sumLifeCover(protection: ClientProfile["protection"]): number {
 }
 
 function hasMinorChildren(clientProfile: ClientProfile): boolean {
-  const children = clientProfile.household.children ?? [];
+  const children = clientProfile.household.dependants.filter(
+    (d) => d.relationship === "child",
+  );
   return children.some((c) => {
     if (!c.dateOfBirth) return false;
     const ageMs = Date.now() - new Date(c.dateOfBirth).getTime();
@@ -105,9 +107,9 @@ export function mapClientProfileToEstatePlanner(
   const { household, estate, assets, protection } = clientProfile;
 
   // ── Overview pre-fill
-  const maritalStatus      = household.maritalStatus;
+  const maritalStatus      = clientProfile.identity.maritalStatus;
   const hasSpouseOrPartner = household.spouseOrPartner !== undefined;
-  const numberOfChildren   = (household.children ?? []).length;
+  const numberOfChildren   = household.numberOfChildren;
   const minorChildren      = hasMinorChildren(clientProfile);
 
   const existingWill          = estate?.hasWill;

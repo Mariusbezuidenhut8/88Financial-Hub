@@ -40,7 +40,8 @@ export function mapClientProfileToRetirementPlanner(
 ): RetirementPlannerMappingResult {
   const warnings: string[] = [];
   const { clientProfile } = record;
-  const { identity, cashFlow, retirement, assets } = clientProfile;
+  const { identity, cashFlow, retirement, assets, employment } = clientProfile;
+  void cashFlow; // income fields are on employment
 
   // ── Age from date of birth
   let currentAge: number | undefined;
@@ -57,11 +58,14 @@ export function mapClientProfileToRetirementPlanner(
 
   // ── Monthly income
   const monthlyIncome =
-    cashFlow?.monthlyGrossIncome ?? cashFlow?.monthlyNetIncome;
+    employment?.monthlyGrossIncome ?? employment?.monthlyNetIncome;
   if (!monthlyIncome) warnings.push("Monthly income is missing.");
 
   // ── Retirement savings — sum all retirement assets
-  const retirementAssets = assets?.retirementAssets ?? [];
+  const retirementAssets = assets?.filter((a) =>
+    ["retirement_annuity", "pension_fund", "provident_fund", "preservation_fund",
+     "living_annuity", "government_pension"].includes(a.assetType),
+  ) ?? [];
   const currentRetirementSavings =
     retirementAssets.length > 0
       ? retirementAssets.reduce((sum: number, a: { currentValue?: number }) => sum + (a.currentValue ?? 0), 0)
@@ -70,13 +74,13 @@ export function mapClientProfileToRetirementPlanner(
 
   // ── Monthly contribution
   const currentMonthlyContribution =
-    retirement?.monthlyContribution ?? cashFlow?.monthlyRetirementContribution;
+    retirement?.monthlyRetirementContribution ?? cashFlow?.monthlyRetirementContributions;
   if (!currentMonthlyContribution) warnings.push("Monthly retirement contribution is missing.");
 
   // ── Preset from risk profile
-  const riskTolerance = clientProfile.riskProfile?.riskTolerance;
+  const riskTolerance = retirement?.riskTolerance;
   const preset =
-    riskTolerance === "conservative" || riskTolerance === "moderately_conservative"
+    riskTolerance === "conservative"
       ? ("conservative" as const)
       : riskTolerance === "growth" || riskTolerance === "aggressive"
       ? ("growth" as const)
@@ -94,7 +98,7 @@ export function mapClientProfileToRetirementPlanner(
     },
     goals: {
       targetRetirementAge:  retirement?.targetRetirementAge ?? 65,
-      desiredMonthlyIncome: retirement?.desiredMonthlyIncomeAtRetirement,
+      desiredMonthlyIncome: retirement?.desiredRetirementIncomeMonthly,
       incomeBasis:          "today_money",
     },
     position: {

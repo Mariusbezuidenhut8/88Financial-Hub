@@ -37,12 +37,12 @@ export default function RetirementNextStep({
           <dl className="mt-4 space-y-3">
             <SummaryRow label="Target retirement age" value={String(result.targetRetirementAge)} />
             <SummaryRow label="Desired monthly income" value={currency(result.desiredMonthlyIncome)} />
-            <SummaryRow label="Projected monthly income" value={currency(result.estimatedMonthlyIncomeReal)} />
+            <SummaryRow label="Projected monthly income" value={currency(result.estimatedMonthlyIncome)} />
             <SummaryRow
               label="Monthly gap"
               value={
-                result.monthlyIncomeGapReal > 0
-                  ? currency(result.monthlyIncomeGapReal)
+                result.monthlyIncomeGap > 0
+                  ? currency(result.monthlyIncomeGap)
                   : "No gap — you're on track"
               }
             />

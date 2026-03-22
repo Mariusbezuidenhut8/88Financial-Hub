@@ -59,16 +59,16 @@ export function InvestmentPlannerWizard({
   // ── Navigation ───────────────────────────────────────────────────────────
 
   const goNext = useCallback(() => {
-    setCompletedKeys((prev) =>
+    setCompletedKeys((prev: InvestmentPlannerStepKey[]) =>
       prev.includes(currentStepKey) ? prev : [...prev, currentStepKey],
     );
-    setCurrentStepIndex((i) =>
+    setCurrentStepIndex((i: number) =>
       Math.min(i + 1, investmentPlannerSteps.length - 1),
     );
   }, [currentStepKey]);
 
   const goBack = useCallback(() => {
-    setCurrentStepIndex((i) => Math.max(i - 1, 0));
+    setCurrentStepIndex((i: number) => Math.max(i - 1, 0));
   }, []);
 
   const goToKey = useCallback((key: InvestmentPlannerStepKey) => {
@@ -80,19 +80,19 @@ export function InvestmentPlannerWizard({
 
   const updateGoal = useCallback(
     (goal: InvestmentPlannerGoalStep) =>
-      setState((prev) => ({ ...prev, goal })),
+      setState((prev: InvestmentPlannerState) => ({ ...prev, goal })),
     [],
   );
 
   const updateHorizon = useCallback(
     (horizon: InvestmentPlannerHorizonStep) =>
-      setState((prev) => ({ ...prev, horizon })),
+      setState((prev: InvestmentPlannerState) => ({ ...prev, horizon })),
     [],
   );
 
   const updateTax = useCallback(
     (tax: InvestmentPlannerTaxStep) =>
-      setState((prev) => ({ ...prev, tax })),
+      setState((prev: InvestmentPlannerState) => ({ ...prev, tax })),
     [],
   );
 
@@ -103,7 +103,7 @@ export function InvestmentPlannerWizard({
       const input = toDecisionInput(nextState);
       if (!input) return;
       const result = buildInvestmentPlannerResult(input);
-      setState((prev) => ({ ...prev, result }));
+      setState((prev: InvestmentPlannerState) => ({ ...prev, result }));
       onComplete?.(result);
     },
     [onComplete],
@@ -111,7 +111,7 @@ export function InvestmentPlannerWizard({
 
   const handleTaxContinue = useCallback(() => {
     // Run the engine before navigating forward so recommendation step has data
-    setState((prev) => {
+    setState((prev: InvestmentPlannerState) => {
       const input = toDecisionInput(prev);
       if (input) {
         const result = buildInvestmentPlannerResult(input);

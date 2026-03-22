@@ -4,7 +4,7 @@ import React, { useState, useCallback } from "react";
 import { OnboardingState, OnboardingStep, INITIAL_ONBOARDING_STATE } from "../types/onboarding-state.types";
 import { ONBOARDING_STEPS, getNextStep, getPreviousStep } from "../types/onboarding-steps.types";
 import { calculateHealthScore } from "../services/health-score-calculator";
-import { recommendTools } from "../services/recommendation-router";
+import { getOnboardingRouteResult } from "../services/recommendation-router";
 import { mapOnboardingToClientProfile } from "../services/onboarding-mapper";
 import ProgressHeader from "./ProgressHeader";
 import WelcomeStep from "./steps/WelcomeStep";
@@ -34,7 +34,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
 
   const updateState = useCallback(
     <K extends keyof OnboardingState>(key: K, value: OnboardingState[K]) => {
-      setState((prev) => ({ ...prev, [key]: value }));
+      setState((prev: OnboardingState) => ({ ...prev, [key]: value }));
     },
     []
   );
@@ -46,19 +46,19 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
     // When moving to results, calculate score
     if (next === "results") {
       const score = calculateHealthScore(state);
-      const recommended = recommendTools(state, score);
-      setState((prev) => ({
+      const routeResult = getOnboardingRouteResult(state, score);
+      setState((prev: OnboardingState) => ({
         ...prev,
         currentStep: "results",
         completedSteps: [...new Set([...prev.completedSteps, prev.currentStep])],
         healthScore: score,
-        recommendedTools: recommended,
+        routeResult,
         completedAt: new Date().toISOString(),
       }));
       return;
     }
 
-    setState((prev) => ({
+    setState((prev: OnboardingState) => ({
       ...prev,
       currentStep: next,
       completedSteps: [...new Set([...prev.completedSteps, prev.currentStep])],
@@ -68,7 +68,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
   const handleBack = useCallback(() => {
     const prev = getPreviousStep(state.currentStep);
     if (prev) {
-      setState((s) => ({ ...s, currentStep: prev }));
+      setState((s: OnboardingState) => ({ ...s, currentStep: prev }));
     }
   }, [state.currentStep]);
 
@@ -149,12 +149,12 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
             onBack={handleBack}
           />
         )}
-        {state.currentStep === "results" && state.healthScore && (
+        {state.currentStep === "results" && state.healthScore && state.routeResult && (
           <ResultsStep
-            score={state.healthScore}
-            recommendedTools={state.recommendedTools ?? []}
+            scoreResult={state.healthScore}
+            routeResult={state.routeResult}
             firstName={state.about.firstName}
-            onComplete={handleComplete}
+            onGoToDashboard={handleComplete}
           />
         )}
       </main>

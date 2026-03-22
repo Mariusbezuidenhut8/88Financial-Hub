@@ -48,7 +48,7 @@ export function ROANeedsStep({ state, profile, onChange, onNext, onBack }: ROANe
         </div>
         {score.topGaps.length > 0 && (
           <ul className="mt-3 space-y-1">
-            {score.topGaps.map((gap, i) => (
+            {score.topGaps.map((gap: string, i: number) => (
               <li key={i} className="flex items-start gap-2 text-xs text-slate-600">
                 <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-amber-400" />
                 {gap}

@@ -97,11 +97,11 @@ export default function RetirementWizard({
   // ── Navigation ──────────────────────────────────────────────────────────
 
   const goNext = useCallback(() => {
-    setCurrentStepIndex((i) => Math.min(i + 1, totalSteps - 1));
+    setCurrentStepIndex((i: number) => Math.min(i + 1, totalSteps - 1));
   }, [totalSteps]);
 
   const goBack = useCallback(() => {
-    setCurrentStepIndex((i) => Math.max(i - 1, 0));
+    setCurrentStepIndex((i: number) => Math.max(i - 1, 0));
   }, []);
 
   const goToStep = useCallback((index: number) => {
@@ -115,7 +115,7 @@ export default function RetirementWizard({
       key: K,
       value: RetirementPlannerState[K],
     ) => {
-      setState((prev) => ({ ...prev, [key]: value }));
+      setState((prev: RetirementPlannerState) => ({ ...prev, [key]: value }));
     },
     [],
   );
@@ -127,7 +127,7 @@ export default function RetirementWizard({
     if (!input) return false;
 
     const result = runFullProjection(input);
-    setState((prev) => ({ ...prev, result }));
+    setState((prev: RetirementPlannerState) => ({ ...prev, result }));
     onComplete?.(result);
     return true;
   }, [state, onComplete]);

@@ -154,7 +154,7 @@ function PillarCard({
       <div className="mt-3 flex items-center justify-between gap-2">
         <button
           type="button"
-          onClick={() => setExpanded((v) => !v)}
+          onClick={() => setExpanded((v: boolean) => !v)}
           className="text-xs text-slate-500 underline-offset-2 hover:text-slate-700 hover:underline transition"
         >
           {expanded ? "Show less" : "Show detail"}

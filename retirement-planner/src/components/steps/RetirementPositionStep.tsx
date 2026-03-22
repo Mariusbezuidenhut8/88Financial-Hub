@@ -1,5 +1,5 @@
 import React from "react";
-import type { RetirementPositionState } from "../../types/retirement-planner.types";
+import type { RetirementPlannerPosition as RetirementPositionState } from "../../types/retirement-planner.types";
 
 interface RetirementPositionStepProps {
   state: RetirementPositionState;

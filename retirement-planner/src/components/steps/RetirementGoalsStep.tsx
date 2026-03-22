@@ -1,5 +1,5 @@
 import React from "react";
-import type { RetirementGoalsState } from "../../types/retirement-planner.types";
+import type { RetirementPlannerGoals as RetirementGoalsState } from "../../types/retirement-planner.types";
 
 interface RetirementGoalsStepProps {
   state: RetirementGoalsState;
