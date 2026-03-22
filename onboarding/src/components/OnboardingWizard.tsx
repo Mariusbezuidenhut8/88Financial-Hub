@@ -155,6 +155,9 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
             routeResult={state.routeResult}
             firstName={state.about.firstName}
             onGoToDashboard={handleComplete}
+            onContinueSelfService={handleComplete}
+            onGuidedHelp={handleComplete}
+            onAdvisorHelp={handleComplete}
           />
         )}
       </main>
