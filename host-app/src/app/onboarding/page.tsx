@@ -24,9 +24,14 @@ export default function OnboardingPage() {
     router.push("/adviser");
   }
 
+  function handleAdvisorHelp(profile: Record<string, unknown>) {
+    updateProfile(profile as unknown as ClientProfile);
+    router.push("/contact-adviser");
+  }
+
   return (
     <div className="min-h-screen bg-slate-50">
-      <OnboardingWizard onComplete={handleComplete} />
+      <OnboardingWizard onComplete={handleComplete} onAdvisorHelp={handleAdvisorHelp} />
     </div>
   );
 }

@@ -27,9 +27,10 @@ import ResultsStep from "./steps/ResultsStep";
 
 interface OnboardingWizardProps {
   onComplete?: (profile: Record<string, unknown>, state: OnboardingState) => void;
+  onAdvisorHelp?: (profile: Record<string, unknown>, state: OnboardingState) => void;
 }
 
-export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
+export default function OnboardingWizard({ onComplete, onAdvisorHelp }: OnboardingWizardProps) {
   const [state, setState] = useState<OnboardingState>(INITIAL_ONBOARDING_STATE);
 
   const updateState = useCallback(
@@ -76,6 +77,15 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
     const profile = mapOnboardingToClientProfile(state);
     onComplete?.(profile, state);
   }, [state, onComplete]);
+
+  const handleAdvisorHelp = useCallback(() => {
+    const profile = mapOnboardingToClientProfile(state);
+    if (onAdvisorHelp) {
+      onAdvisorHelp(profile, state);
+    } else {
+      onComplete?.(profile, state);
+    }
+  }, [state, onAdvisorHelp, onComplete]);
 
   const showProgress =
     state.currentStep !== "welcome" && state.currentStep !== "results";
@@ -157,7 +167,7 @@ export default function OnboardingWizard({ onComplete }: OnboardingWizardProps) 
             onGoToDashboard={handleComplete}
             onContinueSelfService={handleComplete}
             onGuidedHelp={handleComplete}
-            onAdvisorHelp={handleComplete}
+            onAdvisorHelp={handleAdvisorHelp}
           />
         )}
       </main>
