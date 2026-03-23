@@ -18,7 +18,6 @@ const NAV_LINKS = [
   { href: "/protection", label: "Protection" },
   { href: "/estate",     label: "Estate"     },
   { href: "/investment", label: "Investment" },
-  { href: "/roa",        label: "ROA"        },
 ];
 
 export function AppNav() {

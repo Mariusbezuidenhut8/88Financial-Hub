@@ -31,7 +31,7 @@ export default function AboutStep({ data, onChange, onNext, onBack }: AboutStepP
     onChange({ ...data, idNumber, age });
   };
 
-  const canContinue = !!(data.firstName && data.lastName && data.mobileNumber);
+  const canContinue = !!(data.firstName && data.lastName && data.mobileNumber && data.emailAddress);
 
   return (
     <StepLayout
@@ -86,7 +86,7 @@ export default function AboutStep({ data, onChange, onNext, onBack }: AboutStepP
       {/* Email */}
       <div className="space-y-1">
         <label className="block text-sm font-medium text-gray-700">
-          Email address <span className="text-gray-400 text-xs ml-1">(optional)</span>
+          Email address <span className="text-red-500">*</span> <span className="text-gray-400 text-xs ml-1">(we'll email you your full report)</span>
         </label>
         <input
           type="email"
