@@ -5,7 +5,20 @@ import { AppNav } from "@/components/AppNav";
 
 export const metadata: Metadata = {
   title:       "88 Financial Hub — Fairbairn Consult",
-  description: "Adviser platform: financial health score, retirement, protection, estate and investment planning.",
+  description: "Get your personalised Financial Health Score and plan your retirement, protection, estate and investments — powered by Fairbairn Consult (FSP 9328).",
+  openGraph: {
+    title:       "88 Financial Hub — Fairbairn Consult",
+    description: "Get your personalised Financial Health Score and plan your retirement, protection, estate and investments — powered by Fairbairn Consult (FSP 9328).",
+    url:         "https://88financial-hub.netlify.app",
+    siteName:    "88 Financial Hub",
+    locale:      "en_ZA",
+    type:        "website",
+  },
+  twitter: {
+    card:        "summary_large_image",
+    title:       "88 Financial Hub — Fairbairn Consult",
+    description: "Get your personalised Financial Health Score and plan your retirement, protection, estate and investments — powered by Fairbairn Consult (FSP 9328).",
+  },
 };
 
 export default function RootLayout({
