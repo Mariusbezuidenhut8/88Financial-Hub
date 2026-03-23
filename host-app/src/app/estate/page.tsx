@@ -21,7 +21,7 @@ export default function EstatePage() {
         router.push("/adviser");
       }}
       onBackToDashboard={() => router.push("/adviser")}
-      onRequestAdvisorHelp={() => alert("Adviser help — coming soon")}
+      onRequestAdvisorHelp={() => router.push("/contact-adviser")}
       onOpenProtectionPlanner={() => router.push("/protection")}
     />
   );

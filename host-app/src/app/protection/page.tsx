@@ -21,7 +21,7 @@ export default function ProtectionPage() {
         router.push("/adviser");
       }}
       onBackToDashboard={() => router.push("/adviser")}
-      onRequestAdvisorHelp={() => alert("Adviser help — coming soon")}
+      onRequestAdvisorHelp={() => router.push("/contact-adviser")}
       onOpenEstatePlanner={() => router.push("/estate")}
     />
   );

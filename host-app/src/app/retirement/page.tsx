@@ -21,7 +21,7 @@ export default function RetirementPage() {
         router.push("/adviser");
       }}
       onGoToDashboard={() => router.push("/adviser")}
-      onRequestAdvisor={() => alert("Adviser help — coming soon")}
+      onRequestAdvisor={() => router.push("/contact-adviser")}
     />
   );
 }

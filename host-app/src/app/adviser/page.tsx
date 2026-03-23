@@ -28,7 +28,7 @@ export default function AdviserPage() {
       plannerStatuses={plannerStatuses}
       onOpenPlanner={handleOpenPlanner}
       onEditProfile={() => router.push("/onboarding")}
-      onRequestAdvisorHelp={() => alert("Adviser help — coming soon")}
+      onRequestAdvisorHelp={() => router.push("/contact-adviser")}
     />
   );
 }
