@@ -9,7 +9,6 @@
 
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 
 const ADVISER = {
   name:       "Marius Bezuidenhout",
@@ -71,13 +70,12 @@ export default function ContactAdviserPage() {
         {/* Adviser card */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
           <div className="flex items-start gap-5">
-            <div className="relative w-20 h-20 rounded-full overflow-hidden shrink-0 border-2 border-blue-100">
-              <Image
+            <div className="w-20 h-20 rounded-full overflow-hidden shrink-0 border-2 border-blue-100">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src={ADVISER.photo}
                 alt={ADVISER.name}
-                fill
-                sizes="80px"
-                className="object-cover"
+                className="w-full h-full object-cover"
               />
             </div>
 
