@@ -172,7 +172,7 @@ export default function DemoAdviserDashboard() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
             <span className="text-xs font-medium uppercase tracking-widest text-slate-400">
-              Fairbairn Consult
+              88Wealth Management
             </span>
             <span className="text-slate-300">|</span>
             <span className="text-sm font-semibold text-slate-700">Adviser Portal</span>

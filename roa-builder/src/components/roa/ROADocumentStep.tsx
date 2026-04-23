@@ -92,7 +92,7 @@ export function ROADocumentStep({ state, profile, record, onNext, onBack }: ROAD
         <div className="flex items-start justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
-              Fairbairn Consult (Pty) Ltd
+              88Wealth Management
             </p>
             <h1 className="mt-1 text-2xl font-bold text-slate-900">Record of Advice</h1>
             <p className="mt-1 text-xs text-slate-500">
@@ -238,7 +238,8 @@ export function ROADocumentStep({ state, profile, record, onNext, onBack }: ROAD
           {/* 7. Disclosures */}
           <Section number="7" title="Disclosures">
             <p className="text-xs leading-5 text-slate-600">
-              Fairbairn Consult (Pty) Ltd is an authorised financial services provider.
+              88Wealth Management is a mandated financial services provider operating under
+              Fairbairn Consult (Pty) Ltd (FSP 9328), an authorised financial services provider.
               The advice contained in this document is based on the information provided by the client
               at the time of the engagement. The adviser has a reasonable basis for the recommendations made.
             </p>

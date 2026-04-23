@@ -12,8 +12,8 @@ import { useRouter } from "next/navigation";
 
 const ADVISER = {
   name:       "Marius Bezuidenhout",
-  title:      "Certified Financial Planner (CFP®)",
-  firm:       "Fairbairn Consult",
+  title:      "CEO · B-Proc, Adv PGD Financial Planning (Investment Portfolio Management & Advanced Estate Planning)",
+  firm:       "88Wealth Management",
   fspNumber:  "FSP 9328",
   photo:      "https://res.cloudinary.com/profileme/image/upload/w_auto/f_auto/v1755086127/1755086126086_15b6c40cf1.png",
   mobile:     "+27829041924",
@@ -87,8 +87,9 @@ export default function ContactAdviserPage() {
               </p>
 
               <p className="mt-3 text-sm text-slate-600 leading-relaxed">
-                As a dedicated CFP®, I prioritise your family&apos;s financial
-                well-being with personalised strategies for lasting success.
+                CEO of 88Wealth Management — mandated financial service provider under
+                Fairbairn Consult (FSP 9328). Specialising in investment portfolio management
+                and advanced estate planning.
               </p>
             </div>
           </div>

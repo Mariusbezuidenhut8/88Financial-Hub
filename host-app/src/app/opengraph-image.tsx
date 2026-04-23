@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "88 Financial Hub — Fairbairn Consult";
+export const alt = "88Wealth Management — Financial Hub";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -62,21 +62,22 @@ export default function OGImage() {
             textAlign: "center",
           }}
         >
-          Financial Hub
+          88Wealth Management
         </div>
 
         {/* Sub-brand */}
         <div
           style={{
             color: "#93c5fd",
-            fontSize: "28px",
+            fontSize: "22px",
             fontWeight: "500",
-            letterSpacing: "4px",
+            letterSpacing: "3px",
             textTransform: "uppercase",
             marginBottom: "40px",
+            textAlign: "center",
           }}
         >
-          Fairbairn Consult · FSP 9328
+          Mandated FSP · Fairbairn Consult · FSP 9328
         </div>
 
         {/* Tagline */}

@@ -4,20 +4,20 @@ import { ClientProvider } from "@/context/ClientContext";
 import { AppNav } from "@/components/AppNav";
 
 export const metadata: Metadata = {
-  title:       "88 Financial Hub — Fairbairn Consult",
-  description: "Get your personalised Financial Health Score and plan your retirement, protection, estate and investments — powered by Fairbairn Consult (FSP 9328).",
+  title:       "88Wealth Management — Financial Hub",
+  description: "Get your personalised Financial Health Score and plan your retirement, protection, estate and investments — 88Wealth Management, mandated FSP under Fairbairn Consult (FSP 9328).",
   openGraph: {
-    title:       "88 Financial Hub — Fairbairn Consult",
-    description: "Get your personalised Financial Health Score and plan your retirement, protection, estate and investments — powered by Fairbairn Consult (FSP 9328).",
+    title:       "88Wealth Management — Financial Hub",
+    description: "Get your personalised Financial Health Score and plan your retirement, protection, estate and investments — 88Wealth Management, mandated FSP under Fairbairn Consult (FSP 9328).",
     url:         "https://88financial-hub.netlify.app",
-    siteName:    "88 Financial Hub",
+    siteName:    "88Wealth Management",
     locale:      "en_ZA",
     type:        "website",
   },
   twitter: {
     card:        "summary_large_image",
-    title:       "88 Financial Hub — Fairbairn Consult",
-    description: "Get your personalised Financial Health Score and plan your retirement, protection, estate and investments — powered by Fairbairn Consult (FSP 9328).",
+    title:       "88Wealth Management — Financial Hub",
+    description: "Get your personalised Financial Health Score and plan your retirement, protection, estate and investments — 88Wealth Management, mandated FSP under Fairbairn Consult (FSP 9328).",
   },
 };
 

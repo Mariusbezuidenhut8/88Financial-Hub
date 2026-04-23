@@ -41,7 +41,7 @@ export function EstatePlannerPage({
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-medium uppercase tracking-widest text-slate-400">
-                Fairbairn Consult
+                88Wealth Management
               </p>
               <h1 className="mt-0.5 text-lg font-bold text-slate-900">
                 Estate Planner

@@ -11,8 +11,12 @@ export default function WelcomeStep({ onNext }: WelcomeStepProps) {
   return (
     <div className="flex flex-col items-center text-center space-y-8 pt-8">
       {/* Logo / brand */}
-      <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center">
-        <span className="text-white text-2xl font-bold">88</span>
+      <div className="flex flex-col items-center gap-2">
+        <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center">
+          <span className="text-white text-2xl font-bold">88</span>
+        </div>
+        <p className="text-sm font-bold text-slate-800 tracking-tight">88Wealth Management</p>
+        <p className="text-xs text-slate-400">Mandated FSP · Fairbairn Consult · FSP 9328</p>
       </div>
 
       {/* Headline */}

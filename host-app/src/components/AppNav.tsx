@@ -31,12 +31,15 @@ export function AppNav() {
 
         {/* Brand */}
         <div className="flex items-center gap-3 py-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-xs font-bold text-white">
+            88
+          </div>
           <div>
-            <p className="text-xs font-medium uppercase tracking-widest text-slate-400">
-              Fairbairn Consult
-            </p>
             <p className="text-sm font-bold leading-tight text-slate-900">
-              Financial Hub
+              88Wealth Management
+            </p>
+            <p className="text-xs text-slate-400">
+              FSP 9328 · Financial Hub
             </p>
           </div>
         </div>
