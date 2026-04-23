@@ -13,11 +13,20 @@ export const metadata: Metadata = {
     siteName:    "88Wealth Management",
     locale:      "en_ZA",
     type:        "website",
+    images: [
+      {
+        url:    "https://88financial-hub.netlify.app/og-image.png",
+        width:  1200,
+        height: 630,
+        alt:    "88Wealth Management — Financial Hub",
+      },
+    ],
   },
   twitter: {
     card:        "summary_large_image",
     title:       "88Wealth Management — Financial Hub",
     description: "Get your personalised Financial Health Score and plan your retirement, protection, estate and investments — 88Wealth Management, mandated FSP under Fairbairn Consult (FSP 9328).",
+    images:      ["https://88financial-hub.netlify.app/og-image.png"],
   },
 };
 
